@@ -72,7 +72,7 @@
 				<img bindonce="img" bo-attr bo-attr-srcset="img.srcset" bo-attr-alt="img.alt" />\n\
 			</picture>',
 			link: function (scope, element, attrs) {
-				var deregister = [];
+				var cancel = [];
 				var img = element.find('img');
 				var sources = [];
 
@@ -118,13 +118,13 @@
 					return (complete || readyState == 'complete' || readyState == 'loaded');
 				};
 
-				deregister.push($timeout(function () {
+				cancel.push($timeout(function () {
 					Picturefill(element);
 				}));
 
 				scope.$on('$destroy', function () {
-					angular.forEach(deregister, function (fn) {
-						fn();
+					angular.forEach(cancel, function (fn) {
+						fn.cancel();
 					});
 				});
 			}
