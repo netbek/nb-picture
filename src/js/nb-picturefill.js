@@ -72,7 +72,7 @@
 				<img bindonce="img" bo-attr bo-attr-srcset="img.srcset" bo-attr-alt="img.alt" />\n\
 			</picture>',
 			link: function (scope, element, attrs) {
-				var cancel = [];
+				var timeouts = [];
 				var img = element.find('img');
 				var sources = [];
 
@@ -118,13 +118,13 @@
 					return (complete || readyState == 'complete' || readyState == 'loaded');
 				};
 
-				cancel.push($timeout(function () {
+				timeouts.push($timeout(function () {
 					Picturefill(element);
 				}));
 
 				scope.$on('$destroy', function () {
-					angular.forEach(cancel, function (fn) {
-						fn.cancel();
+					angular.forEach(timeouts, function (fn) {
+						$timeout.cancel(fn);
 					});
 				});
 			}
