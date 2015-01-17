@@ -60,8 +60,8 @@
 		};
 	}
 
-	nbPicturefillDirective.$inject = ['$timeout', 'I18N', 'nbPicturefillConfig', 'Picturefill'];
-	function nbPicturefillDirective ($timeout, I18N, nbPicturefillConfig, Picturefill) {
+	nbPicturefillDirective.$inject = ['$timeout', 'nbI18N', 'nbPicturefillConfig', 'Picturefill'];
+	function nbPicturefillDirective ($timeout, nbI18N, nbPicturefillConfig, Picturefill) {
 		return {
 			restrict: 'A',
 			replace: true,
@@ -80,7 +80,7 @@
 					sources = scope.$eval(attrs.sources);
 
 					if (!angular.isArray(sources)) {
-						throw I18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'nb-picturefill-sources', '!type': 'Array'});
+						throw nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'nb-picturefill-sources', '!type': 'Array'});
 					}
 				}
 
