@@ -80,7 +80,7 @@
 					sources = scope.$eval(attrs.sources);
 
 					if (!angular.isArray(sources)) {
-						throw nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'nb-picturefill-sources', '!type': 'Array'});
+						throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'nb-picturefill-sources', '!type': 'Array'}));
 					}
 				}
 
