@@ -1,25 +1,27 @@
 {
-  "name": "nb-picturefill",
-  "version": "0.0.1",
-  "description": "AngularJS wrapper for Picturefill",
-  "homepage": "https://github.com/netbek/nb-picturefill",
-  "author": {
-    "name": "Hein Bekker",
-    "email": "hein@netbek.co.za",
-    "url": "http://netbek.co.za"
-  },
-  "license": {
-    "type": "AGPLv3",
-    "url": "http://www.gnu.org/licenses/agpl-3.0.txt"
-  },
-  "ignore": [
-    "bower_components",
-    "node_modules",
-    "test",
-    "tests",
-    "vendor"
-  ],
-  "dependencies": {
-    "picturefill": "2.2.0"
-  }
+	"name": "nb-picturefill",
+	"version": "0.0.1",
+	"description": "AngularJS wrapper for Picturefill",
+	"homepage": "https://github.com/netbek/nb-picturefill",
+	"author": {
+		"name": "Hein Bekker",
+		"email": "hein@netbek.co.za",
+		"url": "http://netbek.co.za"
+	},
+	"license": {
+		"type": "AGPLv3",
+		"url": "http://www.gnu.org/licenses/agpl-3.0.txt"
+	},
+	"ignore": [
+		"bower_components",
+		"node_modules",
+		"test",
+		"tests",
+		"vendor"
+	],
+	"dependencies": {
+		"angular-bindonce": "0.3.3",
+		"nb-i18n": "https://github.com/netbek/nb-i18n.git#master",
+		"picturefill": "2.2.0"
+	}
 }
