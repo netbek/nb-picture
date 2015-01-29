@@ -72,60 +72,104 @@
 				<img bindonce="img" bo-attr bo-attr-srcset="img.srcset" bo-attr-alt="img.alt" />\n\
 			</picture>',
 			link: function (scope, element, attrs) {
+				var isInitialized = false;
+				var isReady = false;
+				var defaultsRaw, sourcesRaw, altRaw;
 				var timeouts = [];
 				var img = element.find('img');
-				var sources = [];
 
-				if (angular.isDefined(attrs.sources)) {
-					sources = scope.$eval(attrs.sources);
+				function init () {
+					if (isInitialized || !(defaultsRaw && sourcesRaw)) {
+						return;
+					}
+
+					isInitialized = true;
+
+					var sources = scope.$eval(sourcesRaw);
+					var arr = [];
 
 					if (!angular.isArray(sources)) {
-						throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'nb-picturefill-sources', '!type': 'Array'}));
-					}
-				}
-
-				scope.sources = [];
-
-				// Add sources, large to small.
-				for (var il = sources.length, i = il - 1; i >= 0; i--) {
-					var source = sources[i];
-					var media;
-
-					if (angular.isDefined(source[1]) && source[1] in nbPicturefillConfig.mediaqueries) {
-						media = nbPicturefillConfig.mediaqueries[source[1]];
+						throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
 					}
 
-					scope.sources.push({
-						srcset: source[0],
-						media: media
+					// Add sources, large to small.
+					for (var il = sources.length, i = il - 1; i >= 0; i--) {
+						var source = sources[i];
+						var media;
+
+						if (angular.isDefined(source[1]) && source[1] in nbPicturefillConfig.mediaqueries) {
+							media = nbPicturefillConfig.mediaqueries[source[1]];
+						}
+
+						arr.push({
+							srcset: source[0],
+							media: media
+						});
+					}
+
+					// Add default source.
+					arr.push({
+						srcset: defaultsRaw
 					});
+
+					scope.sources = arr;
+
+					// Set default image.
+					scope.img = {
+						srcset: defaultsRaw,
+						alt: altRaw
+					};
+
+					timeouts.push($timeout(function () {
+						Picturefill(element);
+						isReady = true;
+					}));
 				}
-
-				// Add default source.
-				scope.sources.push({
-					srcset: attrs.default
-				});
-
-				// Set default image.
-				scope.img = {
-					srcset: attrs.default,
-					alt: attrs.alt
-				};
 
 				scope.isLoaded = function () {
+					if (!isReady) {
+						return false;
+					}
+
 					var complete = img.prop('complete');
 					var readyState = img.prop('readyState');
+
 					return (complete || readyState == 'complete' || readyState == 'loaded');
 				};
 
-				timeouts.push($timeout(function () {
-					Picturefill(element);
-				}));
+				scope.width = function () {
+					return !isReady ? 0 : img[0].scrollWidth;
+				};
+
+				scope.height = function () {
+					return !isReady ? 0 : img[0].scrollHeight;
+				};
 
 				scope.$on('$destroy', function () {
 					angular.forEach(timeouts, function (fn) {
 						$timeout.cancel(fn);
 					});
+				});
+
+				attrs.$observe('alt', function (value) {
+					if (value) {
+						altRaw = value;
+						init();
+					}
+				});
+
+				attrs.$observe('default', function (value) {
+					if (value) {
+						defaultsRaw = value;
+						init();
+					}
+				});
+
+				attrs.$observe('sources', function (value) {
+					if (value) {
+						sourcesRaw = value;
+						init();
+					}
 				});
 			}
 		};
