@@ -72,14 +72,17 @@
 				<img bindonce="img" bo-attr bo-attr-srcset="img.srcset" bo-attr-alt="img.alt" />\n\
 			</picture>',
 			link: function (scope, element, attrs) {
-				var isInitialized = false;
-				var isReady = false;
-				var defaultsRaw, sourcesRaw, altRaw;
+				var isInitialized = false; // Whether init() has been fired.
+				var isReady = false; // Whether Picturefill() has been fired.
+				var defaultRaw, sourcesRaw, altRaw;
 				var timeouts = [];
-				var img = element.find('img')[0];
+				var $img = element.find('img');
+				var img = $img[0];
+
+				scope.complete = false; // Whether image has loaded or failed to load.
 
 				function init () {
-					if (isInitialized || !(defaultsRaw && sourcesRaw)) {
+					if (isInitialized || !(defaultRaw && sourcesRaw)) {
 						return;
 					}
 
@@ -109,14 +112,14 @@
 
 					// Add default source.
 					arr.push({
-						srcset: defaultsRaw
+						srcset: defaultRaw
 					});
 
 					scope.sources = arr;
 
 					// Set default image.
 					scope.img = {
-						srcset: defaultsRaw,
+						srcset: defaultRaw,
 						alt: altRaw
 					};
 
@@ -126,22 +129,22 @@
 					}));
 				}
 
-				scope.isLoaded = function () {
-					if (!isReady) {
-						return false;
+				function onError (event) {
+					if (isReady && (img.src || img.srcset)) {
+						scope.complete = true;
 					}
+				}
 
-					if ('naturalWidth' in img) {
-						return (img.naturalWidth > 0);
+				function onLoad (event) {
+					var readyState = img.readyState;
+					if (isReady && (img.src || img.srcset) && (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4)) {
+						scope.complete = true;
 					}
-					else if ('complete' in img || 'readyState' in img) {
-						var readyState = img.readyState;
-						return (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4);
-					}
-					else {
-						return true;
-					}
-				};
+				}
+
+				$img.on('error', onError);
+				$img.on('load', onLoad);
+				$img.on('readystatechange', onLoad);
 
 				scope.width = function () {
 					return !isReady ? 0 : img.scrollWidth;
@@ -155,6 +158,10 @@
 					angular.forEach(timeouts, function (fn) {
 						$timeout.cancel(fn);
 					});
+
+					$img.off('error', onError);
+					$img.off('load', onLoad);
+					$img.off('readystatechange', onLoad);
 				});
 
 				attrs.$observe('alt', function (value) {
@@ -166,7 +173,7 @@
 
 				attrs.$observe('default', function (value) {
 					if (value) {
-						defaultsRaw = value;
+						defaultRaw = value;
 						init();
 					}
 				});
