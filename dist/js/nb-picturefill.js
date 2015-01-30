@@ -76,7 +76,7 @@
 				var isReady = false;
 				var defaultsRaw, sourcesRaw, altRaw;
 				var timeouts = [];
-				var img = element.find('img');
+				var img = element.find('img')[0];
 
 				function init () {
 					if (isInitialized || !(defaultsRaw && sourcesRaw)) {
@@ -131,18 +131,24 @@
 						return false;
 					}
 
-					var complete = img.prop('complete');
-					var readyState = img.prop('readyState');
-
-					return (complete || readyState == 'complete' || readyState == 'loaded');
+					if ('naturalWidth' in img) {
+						return (img.naturalWidth > 0);
+					}
+					else if ('complete' in img || 'readyState' in img) {
+						var readyState = img.readyState;
+						return (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4);
+					}
+					else {
+						return true;
+					}
 				};
 
 				scope.width = function () {
-					return !isReady ? 0 : img[0].scrollWidth;
+					return !isReady ? 0 : img.scrollWidth;
 				};
 
 				scope.height = function () {
-					return !isReady ? 0 : img[0].scrollHeight;
+					return !isReady ? 0 : img.scrollHeight;
 				};
 
 				scope.$on('$destroy', function () {
