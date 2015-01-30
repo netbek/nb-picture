@@ -74,12 +74,12 @@
 			link: function (scope, element, attrs) {
 				var isInitialized = false;
 				var isReady = false;
-				var defaultsRaw, sourcesRaw, altRaw;
+				var defaultRaw, sourcesRaw, altRaw;
 				var timeouts = [];
 				var img = element.find('img')[0];
 
 				function init () {
-					if (isInitialized || !(defaultsRaw && sourcesRaw)) {
+					if (isInitialized || !(defaultRaw && sourcesRaw)) {
 						return;
 					}
 
@@ -109,14 +109,14 @@
 
 					// Add default source.
 					arr.push({
-						srcset: defaultsRaw
+						srcset: defaultRaw
 					});
 
 					scope.sources = arr;
 
 					// Set default image.
 					scope.img = {
-						srcset: defaultsRaw,
+						srcset: defaultRaw,
 						alt: altRaw
 					};
 
@@ -166,7 +166,7 @@
 
 				attrs.$observe('default', function (value) {
 					if (value) {
-						defaultsRaw = value;
+						defaultRaw = value;
 						init();
 					}
 				});
