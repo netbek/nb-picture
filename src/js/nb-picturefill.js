@@ -73,7 +73,6 @@
 			</picture>',
 			link: function (scope, element, attrs) {
 				var isInitialized = false; // Whether init() has been fired.
-				var isReady = false; // Whether Picturefill() has been fired.
 				var defaultRaw, sourcesRaw, altRaw;
 				var timeouts = [];
 				var $img = element.find('img');
@@ -82,7 +81,7 @@
 				scope.complete = false; // Whether image has loaded or failed to load.
 
 				function init () {
-					if (isInitialized || !(defaultRaw && sourcesRaw)) {
+					if (isInitialized || !defaultRaw || !sourcesRaw) {
 						return;
 					}
 
@@ -125,19 +124,18 @@
 
 					timeouts.push($timeout(function () {
 						Picturefill(element);
-						isReady = true;
 					}));
 				}
 
 				function onError (event) {
-					if (isReady && (img.src || img.srcset)) {
+					if (img.src || img.srcset) {
 						scope.complete = true;
 					}
 				}
 
 				function onLoad (event) {
 					var readyState = img.readyState;
-					if (isReady && (img.src || img.srcset) && (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4)) {
+					if ((img.src || img.srcset) && (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4)) {
 						scope.complete = true;
 					}
 				}
@@ -147,11 +145,11 @@
 				$img.on('readystatechange', onLoad);
 
 				scope.width = function () {
-					return !isReady ? 0 : img.scrollWidth;
+					return scope.complete ? img.scrollWidth : 0;
 				};
 
 				scope.height = function () {
-					return !isReady ? 0 : img.scrollHeight;
+					return scope.complete ? img.scrollHeight : 0;
 				};
 
 				scope.$on('$destroy', function () {
