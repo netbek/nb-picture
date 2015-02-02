@@ -1,0 +1,54 @@
+<!doctype html>
+<html xmlns:ng="http://angularjs.org" lang="en" id="ng-app" ng-app="nb.picturefill.demo">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<title>nb-picturefill demo</title>
+
+		<script src="../bower_components/angular/angular.js"></script>
+		<script src="../bower_components/angular-bindonce/bindonce.js"></script>
+		<script src="../bower_components/merge/merge.js"></script>
+		<script src="../bower_components/picturefill/dist/picturefill.js"></script>
+		<script src="../bower_components/ng-stats/dist/ng-stats.js"></script>
+		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
+		<script src="../dist/js/nb-picturefill.min.js"></script>
+
+		<script src="js/app.js"></script>
+	</head>
+	<body ng-controller="MainController">
+		<div>Image src: <span ng-bind="image.styles.medium"></span></div>
+
+		<div child-scope id="scope1">
+			<div angular-stats
+				 watch-count-root="#scope1"
+				 watch-count=".watch-count"
+				 on-watch-count-update="onWatchCountUpdate(watchCount)">
+				Normal binding. Number of watches: <span class="watch-count"></span>
+			</div>
+			<span nb-picturefill
+				  ng-attr-alt="{{image.alt}}"
+				  ng-attr-source-width="{{image.width}}"
+				  ng-attr-source-height="{{image.height}}"
+				  ng-attr-default="{{image.styles.medium + ', ' + image.styles.large + ' 2x'}}"
+				  ng-attr-sources="{{'[[\'' + image.styles.large + ', ' + image.styles.xlarge + ' 2x\', \'large\']]'}}"></span>
+		</div>
+
+		<div child-scope id="scope2">
+			<div angular-stats
+				 watch-count-root="#scope2"
+				 watch-count=".watch-count"
+				 on-watch-count-update="onWatchCountUpdate(watchCount)">
+				One-time binding. Number of watches: <span class="watch-count"></span>
+			</div>
+			<span nb-picturefill-once
+				  bindonce="image"
+				  bo-attr
+				  bo-attr-alt="image.alt"
+				  bo-attr-source-width="image.width"
+				  bo-attr-source-height="image.height"
+				  bo-attr-default="image.styles.medium + ', ' + image.styles.large + ' 2x'"
+				  bo-attr-sources="'[[\'' + image.styles.large + ', ' + image.styles.xlarge + ' 2x\', \'large\']]'"></span>
+		</div>
+
+	</body>
+</html>

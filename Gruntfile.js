@@ -10,10 +10,6 @@ module.exports = function (grunt) {
 
 	var pkg = grunt.file.readJSON('package.json');
 
-	grunt.loadNpmTasks('grunt-contrib-clean');
-	grunt.loadNpmTasks('grunt-contrib-concat');
-	grunt.loadNpmTasks('grunt-contrib-uglify');
-
 	grunt.initConfig({
 		pkg: pkg,
 		meta: {
@@ -32,6 +28,17 @@ module.exports = function (grunt) {
 			init: ['build', 'dist'],
 			exit: ['build'],
 		},
+		html2js: {
+			dist: {
+				options: {
+					module: 'nb.picturefill.templates',
+				},
+				files: [{
+						src: ['src/templates/*.html'],
+						dest: 'build/js/<%= pkg.name %>-templates.js',
+					}]
+			}
+		},
 		concat: {
 			dist: {
 				src: ['src/js/**/*.js', '!src/js/<%= pkg.name %>-templates.js', 'build/js/<%= pkg.name %>-templates.js'],
@@ -49,8 +56,14 @@ module.exports = function (grunt) {
 		}
 	});
 
+	grunt.loadNpmTasks('grunt-contrib-clean');
+	grunt.loadNpmTasks('grunt-contrib-concat');
+	grunt.loadNpmTasks('grunt-contrib-uglify');
+	grunt.loadNpmTasks('grunt-html2js');
+
 	grunt.registerTask('default', [
 		'clean:init',
+		'html2js',
 		'concat',
 		'uglify',
 		'clean:exit',

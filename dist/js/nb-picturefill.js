@@ -11,12 +11,15 @@
 
 	angular
 		.module('nb.picturefill', [
+			'pasvaz.bindonce',
 			'nb.i18n',
-			'pasvaz.bindonce'
+			'nb.picturefill.templates'
 		])
 		.factory('Picturefill', Picturefill)
 		.provider('nbPicturefillConfig', nbPicturefillConfig)
 		.directive('nbPicturefill', nbPicturefillDirective)
+		.directive('nbPicturefillOnce', nbPicturefillOnceDirective)
+		.controller('nbPicturefillController', nbPicturefillController)
 		.run(runBlock);
 
 	// Invoke at runtime to allow factory to delete global reference.
@@ -60,129 +63,212 @@
 		};
 	}
 
-	nbPicturefillDirective.$inject = ['$timeout', 'nbI18N', 'nbPicturefillConfig', 'Picturefill'];
-	function nbPicturefillDirective ($timeout, nbI18N, nbPicturefillConfig, Picturefill) {
+	nbPicturefillController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPicturefillConfig', 'Picturefill'];
+	function nbPicturefillController ($scope, $element, $attrs, $timeout, nbI18N, nbPicturefillConfig, Picturefill) {
+		var isInitialized = false; // Whether init() has been fired.
+		var timeouts = [];
+		var $img, img;
+
+		$scope.complete = false; // Whether image has loaded or failed to load.
+
+		function onImgError (event) {
+			if (img.src || img.srcset) {
+				$scope.complete = true;
+				removeImgEventListeners();
+			}
+		}
+
+		function onImgLoad (event) {
+			var readyState = img.readyState;
+			if ((img.src || img.srcset) && (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4)) {
+				$scope.complete = true;
+				removeImgEventListeners();
+			}
+		}
+
+		function addImgEventListeners () {
+			$img.on('error', onImgError);
+			$img.on('load', onImgLoad);
+			$img.on('readystatechange', onImgLoad);
+		}
+
+		function removeImgEventListeners () {
+			$img.off('error', onImgError);
+			$img.off('load', onImgLoad);
+			$img.off('readystatechange', onImgLoad);
+		}
+
+		this.attrs = function attrs (scope) {
+			return {
+				alt: $attrs.alt,
+				default: $attrs.default,
+				sources: $attrs.sources
+			};
+		};
+
+		this.init = function () {
+			if (isInitialized) {
+				return;
+			}
+
+			isInitialized = true;
+
+			$img = $element.find('img');
+			img = $img[0];
+		};
+
+		this.destroy = function () {
+			angular.forEach(timeouts, function (fn) {
+				$timeout.cancel(fn);
+			});
+
+			if ($img) {
+				removeImgEventListeners();
+			}
+		};
+
+		/**
+		 * Cancels timeouts, resets state, and adds image event handlers.
+		 *
+		 * @returns {undefined}
+		 */
+		this.reset = function () {
+			if (!isInitialized) {
+				return;
+			}
+
+			this.destroy();
+			$scope.complete = false;
+			addImgEventListeners();
+		};
+
+		this.update = function (options) {
+			if (!isInitialized) {
+				return;
+			}
+
+			this.reset();
+
+			var sources = $scope.$eval(options.sources);
+			var arr = [];
+
+			if (!angular.isArray(sources)) {
+				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
+			}
+
+			// Add sources, large to small.
+			for (var il = sources.length, i = il - 1; i >= 0; i--) {
+				var source = sources[i];
+				var media;
+
+				if (angular.isDefined(source[1]) && source[1] in nbPicturefillConfig.mediaqueries) {
+					media = nbPicturefillConfig.mediaqueries[source[1]];
+				}
+
+				arr.push({
+					srcset: source[0],
+					media: media
+				});
+			}
+
+			// Add default source.
+			arr.push({
+				srcset: options.default
+			});
+
+			$scope.sources = arr;
+
+			// Set default image.
+			$scope.img = {
+				srcset: options.default,
+				alt: options.alt
+			};
+
+			timeouts.push($timeout(function () {
+				Picturefill($element);
+			}));
+		};
+
+		$scope.width = function () {
+			return $scope.complete && img ? img.scrollWidth : 0;
+		};
+
+		$scope.height = function () {
+			return $scope.complete && img ? img.scrollHeight : 0;
+		};
+	}
+
+	function nbPicturefillDirective () {
 		return {
-			restrict: 'A',
+			restrict: 'EA',
 			replace: true,
-			template: '<picture>\n\
-				<!--[if IE 9]><video style="display: none;"><![endif]-->\n\
-				<source ng-repeat="source in sources" bindonce="source" bo-attr bo-attr-srcset="source.srcset" bo-attr-media="source.media" />\n\
-				<!--[if IE 9]></video><![endif]-->\n\
-				<img bindonce="img" bo-attr bo-attr-srcset="img.srcset" bo-attr-alt="img.alt" />\n\
-			</picture>',
-			link: function (scope, element, attrs) {
-				var isInitialized = false; // Whether init() has been fired.
-				var defaultRaw, sourcesRaw, altRaw;
-				var timeouts = [];
-				var $img = element.find('img');
-				var img = $img[0];
+			controller: 'nbPicturefillController',
+			templateUrl: 'templates/nb-picturefill.html',
+			link: function (scope, element, attrs, controller) {
+				controller.init();
 
-				scope.complete = false; // Whether image has loaded or failed to load.
-
-				function init () {
-					if (isInitialized || !defaultRaw || !sourcesRaw) {
-						return;
-					}
-
-					isInitialized = true;
-
-					var sources = scope.$eval(sourcesRaw);
-					var arr = [];
-
-					if (!angular.isArray(sources)) {
-						throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
-					}
-
-					// Add sources, large to small.
-					for (var il = sources.length, i = il - 1; i >= 0; i--) {
-						var source = sources[i];
-						var media;
-
-						if (angular.isDefined(source[1]) && source[1] in nbPicturefillConfig.mediaqueries) {
-							media = nbPicturefillConfig.mediaqueries[source[1]];
-						}
-
-						arr.push({
-							srcset: source[0],
-							media: media
-						});
-					}
-
-					// Add default source.
-					arr.push({
-						srcset: defaultRaw
-					});
-
-					scope.sources = arr;
-
-					// Set default image.
-					scope.img = {
-						srcset: defaultRaw,
-						alt: altRaw
-					};
-
-					timeouts.push($timeout(function () {
-						Picturefill(element);
-					}));
-				}
-
-				function onError (event) {
-					if (img.src || img.srcset) {
-						scope.complete = true;
-					}
-				}
-
-				function onLoad (event) {
-					var readyState = img.readyState;
-					if ((img.src || img.srcset) && (img.complete || readyState == 'complete' || readyState == 'loaded' || readyState == 4)) {
-						scope.complete = true;
-					}
-				}
-
-				$img.on('error', onError);
-				$img.on('load', onLoad);
-				$img.on('readystatechange', onLoad);
-
-				scope.width = function () {
-					return scope.complete ? img.scrollWidth : 0;
-				};
-
-				scope.height = function () {
-					return scope.complete ? img.scrollHeight : 0;
-				};
+				var watch = scope.$watch(controller.attrs, function (newValue, oldValue, scope) {
+					controller.update(newValue);
+				}, true);
 
 				scope.$on('$destroy', function () {
-					angular.forEach(timeouts, function (fn) {
-						$timeout.cancel(fn);
-					});
-
-					$img.off('error', onError);
-					$img.off('load', onLoad);
-					$img.off('readystatechange', onLoad);
+					watch();
+					controller.destroy();
 				});
+			}
+		};
+	}
 
-				attrs.$observe('alt', function (value) {
-					if (value) {
-						altRaw = value;
-						init();
-					}
-				});
+	function nbPicturefillOnceDirective () {
+		return {
+			restrict: 'EA',
+			replace: true,
+			controller: 'nbPicturefillController',
+			templateUrl: 'templates/nb-picturefill-once.html',
+			link: function (scope, element, attrs, controller) {
+				controller.init();
 
-				attrs.$observe('default', function (value) {
-					if (value) {
-						defaultRaw = value;
-						init();
-					}
-				});
+				var watch = scope.$watch(controller.attrs, function (newValue, oldValue, scope) {
+					controller.update(newValue);
+					watch();
+				}, true);
 
-				attrs.$observe('sources', function (value) {
-					if (value) {
-						sourcesRaw = value;
-						init();
-					}
+				scope.$on('$destroy', function () {
+					watch();
+					controller.destroy();
 				});
 			}
 		};
 	}
 })(window, window.angular);
+angular.module('nb.picturefill.templates', ['templates/nb-picturefill-once.html', 'templates/nb-picturefill.html']);
+
+angular.module("templates/nb-picturefill-once.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picturefill-once.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in sources\"\n" +
+    "			bindonce=\"source\"\n" +
+    "			bo-attr\n" +
+    "			bo-attr-srcset=\"source.srcset\"\n" +
+    "			bo-attr-media=\"source.media\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img bindonce=\"img\"\n" +
+    "		 bo-attr\n" +
+    "		 bo-attr-srcset=\"img.srcset\"\n" +
+    "		 bo-attr-alt=\"img.alt\" />\n" +
+    "</picture>");
+}]);
+
+angular.module("templates/nb-picturefill.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picturefill.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in sources\"\n" +
+    "			ng-attr-srcset=\"{{source.srcset}}\"\n" +
+    "			ng-attr-media=\"{{source.media}}\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img ng-attr-srcset=\"{{img.srcset}}\"\n" +
+    "		 ng-attr-alt=\"{{img.alt}}\" />\n" +
+    "</picture>");
+}]);

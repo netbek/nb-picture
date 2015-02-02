@@ -1,0 +1,9 @@
+<picture>
+	<!--[if IE 9]><video style="display: none;"><![endif]-->
+	<source ng-repeat="source in sources"
+			ng-attr-srcset="{{source.srcset}}"
+			ng-attr-media="{{source.media}}" />
+	<!--[if IE 9]></video><![endif]-->
+	<img ng-attr-srcset="{{img.srcset}}"
+		 ng-attr-alt="{{img.alt}}" />
+</picture>
