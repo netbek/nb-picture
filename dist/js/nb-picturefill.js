@@ -54,7 +54,7 @@
 		};
 		return {
 			set: function (values) {
-				config = window.merge(true, config, values);
+				config = values;
 			},
 			$get: function () {
 				return config;
