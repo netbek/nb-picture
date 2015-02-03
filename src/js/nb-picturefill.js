@@ -200,6 +200,7 @@
 	function nbPicturefillDirective () {
 		return {
 			restrict: 'EA',
+			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill.html',
 			link: function (scope, element, attrs, controller) {
@@ -220,6 +221,7 @@
 	function nbPicturefillOnceDirective () {
 		return {
 			restrict: 'EA',
+			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill-once.html',
 			link: function (scope, element, attrs, controller) {
