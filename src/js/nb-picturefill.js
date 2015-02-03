@@ -11,7 +11,6 @@
 
 	angular
 		.module('nb.picturefill', [
-			'pasvaz.bindonce',
 			'nb.i18n',
 			'nb.picturefill.templates'
 		])
@@ -98,7 +97,7 @@
 			$img.off('readystatechange', onImgLoad);
 		}
 
-		this.attrs = function attrs (scope) {
+		this.attrs = function watchAttrs (scope) {
 			return {
 				alt: $attrs.alt,
 				default: $attrs.default,
@@ -201,7 +200,6 @@
 	function nbPicturefillDirective () {
 		return {
 			restrict: 'EA',
-			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill.html',
 			link: function (scope, element, attrs, controller) {
@@ -222,7 +220,6 @@
 	function nbPicturefillOnceDirective () {
 		return {
 			restrict: 'EA',
-			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill-once.html',
 			link: function (scope, element, attrs, controller) {

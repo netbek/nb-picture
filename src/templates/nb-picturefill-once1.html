@@ -1,0 +1,13 @@
+<picture>
+	<!--[if IE 9]><video style="display: none;"><![endif]-->
+	<source ng-repeat="source in sources"
+			bindonce="source"
+			bo-attr
+			bo-attr-srcset="source.srcset"
+			bo-attr-media="source.media" />
+	<!--[if IE 9]></video><![endif]-->
+	<img bindonce="img"
+		 bo-attr
+		 bo-attr-srcset="img.srcset"
+		 bo-attr-alt="img.alt" />
+</picture>

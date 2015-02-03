@@ -6,12 +6,11 @@
 		<title>nb-picturefill demo</title>
 
 		<script src="../bower_components/angular/angular.js"></script>
-		<script src="../bower_components/angular-bindonce/bindonce.js"></script>
 		<script src="../bower_components/merge/merge.js"></script>
 		<script src="../bower_components/picturefill/dist/picturefill.js"></script>
 		<script src="../bower_components/ng-stats/dist/ng-stats.js"></script>
 		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
-		<script src="../dist/js/nb-picturefill.min.js"></script>
+		<script src="../dist/js/nb-picturefill.js"></script>
 
 		<script src="js/app.js"></script>
 	</head>
@@ -41,13 +40,11 @@
 				One-time binding. Number of watches: <span class="watch-count"></span>
 			</div>
 			<span nb-picturefill-once
-				  bindonce="image"
-				  bo-attr
-				  bo-attr-alt="image.alt"
-				  bo-attr-source-width="image.width"
-				  bo-attr-source-height="image.height"
-				  bo-attr-default="image.styles.medium + ', ' + image.styles.large + ' 2x'"
-				  bo-attr-sources="'[[\'' + image.styles.large + ', ' + image.styles.xlarge + ' 2x\', \'large\']]'"></span>
+				  ng-attr-alt="{{::image.alt}}"
+				  ng-attr-source-width="{{::image.width}}"
+				  ng-attr-source-height="{{::image.height}}"
+				  ng-attr-default="{{::(image.styles.medium + ', ' + image.styles.large + ' 2x')}}"
+				  ng-attr-sources="{{::('[[\'' + image.styles.large + ', ' + image.styles.xlarge + ' 2x\', \'large\']]')}}"></span>
 		</div>
 
 	</body>

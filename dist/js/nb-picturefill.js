@@ -11,7 +11,6 @@
 
 	angular
 		.module('nb.picturefill', [
-			'pasvaz.bindonce',
 			'nb.i18n',
 			'nb.picturefill.templates'
 		])
@@ -98,7 +97,7 @@
 			$img.off('readystatechange', onImgLoad);
 		}
 
-		this.attrs = function attrs (scope) {
+		this.attrs = function watchAttrs (scope) {
 			return {
 				alt: $attrs.alt,
 				default: $attrs.default,
@@ -201,7 +200,6 @@
 	function nbPicturefillDirective () {
 		return {
 			restrict: 'EA',
-			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill.html',
 			link: function (scope, element, attrs, controller) {
@@ -222,7 +220,6 @@
 	function nbPicturefillOnceDirective () {
 		return {
 			restrict: 'EA',
-			replace: true,
 			controller: 'nbPicturefillController',
 			templateUrl: 'templates/nb-picturefill-once.html',
 			link: function (scope, element, attrs, controller) {
@@ -241,10 +238,23 @@
 		};
 	}
 })(window, window.angular);
-angular.module('nb.picturefill.templates', ['templates/nb-picturefill-once.html', 'templates/nb-picturefill.html']);
+angular.module('nb.picturefill.templates', ['templates/nb-picturefill-once.html', 'templates/nb-picturefill-once1.html', 'templates/nb-picturefill.html']);
 
 angular.module("templates/nb-picturefill-once.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/nb-picturefill-once.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in ::sources\"\n" +
+    "			ng-srcset=\"{{::source.srcset}}\"\n" +
+    "			ng-attr-media=\"{{::source.media}}\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img ng-srcset=\"{{::img.srcset}}\"\n" +
+    "		 ng-attr-alt=\"{{::img.alt}}\" />\n" +
+    "</picture>");
+}]);
+
+angular.module("templates/nb-picturefill-once1.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picturefill-once1.html",
     "<picture>\n" +
     "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
     "	<source ng-repeat=\"source in sources\"\n" +
@@ -265,10 +275,10 @@ angular.module("templates/nb-picturefill.html", []).run(["$templateCache", funct
     "<picture>\n" +
     "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
     "	<source ng-repeat=\"source in sources\"\n" +
-    "			ng-attr-srcset=\"{{source.srcset}}\"\n" +
+    "			ng-srcset=\"{{source.srcset}}\"\n" +
     "			ng-attr-media=\"{{source.media}}\" />\n" +
     "	<!--[if IE 9]></video><![endif]-->\n" +
-    "	<img ng-attr-srcset=\"{{img.srcset}}\"\n" +
+    "	<img ng-srcset=\"{{img.srcset}}\"\n" +
     "		 ng-attr-alt=\"{{img.alt}}\" />\n" +
     "</picture>");
 }]);
