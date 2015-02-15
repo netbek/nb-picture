@@ -18,19 +18,11 @@
 		.provider('nbPicturefillConfig', nbPicturefillConfig)
 		.directive('nbPicturefill', nbPicturefillDirective)
 		.directive('nbPicturefillOnce', nbPicturefillOnceDirective)
-		.controller('nbPicturefillController', nbPicturefillController)
-		.run(runBlock);
-
-	// Invoke at runtime to allow factory to delete global reference.
-	runBlock.$inject = ['Picturefill'];
-	function runBlock (Picturefill) {
-	}
+		.controller('nbPicturefillController', nbPicturefillController);
 
 	Picturefill.$inject = ['$window'];
 	function Picturefill ($window) {
-		var Picturefill = $window.picturefill;
-		delete $window.picturefill;
-		return Picturefill;
+		return $window.picturefill;
 	}
 
 	function nbPicturefillConfig () {
