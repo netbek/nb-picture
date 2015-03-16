@@ -1,7 +1,8 @@
 {
   "name": "nb-picturefill",
   "version": "0.0.1",
-  "description": "AngularJS wrapper for Modernizr",
+  "description": "AngularJS wrapper for Picturefill",
+  "homepage": "https://github.com/netbek/nb-picturefill",
   "author": {
     "name": "Hein Bekker",
     "email": "hein@netbek.co.za",
