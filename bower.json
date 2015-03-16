@@ -1,8 +1,8 @@
 {
-  "name": "nb-picturefill",
+  "name": "nb-picture",
   "version": "0.0.1",
-  "description": "AngularJS wrapper for Picturefill",
-  "homepage": "https://github.com/netbek/nb-picturefill",
+  "description": "AngularJS directive for responsive images",
+  "homepage": "https://github.com/netbek/nb-picture",
   "author": {
     "name": "Hein Bekker",
     "email": "hein@netbek.co.za",

@@ -1,5 +1,5 @@
 /**
- * nb-picturefill
+ * nb-picture
  *
  * @author Hein Bekker <hein@netbek.co.za>
  * @copyright (c) 2015 Hein Bekker
@@ -32,7 +32,7 @@ module.exports = function (grunt) {
 		html2js: {
 			dist: {
 				options: {
-					module: 'nb.picturefill.templates',
+					module: 'nb.picture.templates',
 				},
 				files: [{
 						src: ['src/templates/*.html'],

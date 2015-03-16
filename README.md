@@ -1,13 +1,13 @@
-# nb-picturefill
+# nb-picture
 
-AngularJS directive for [Picturefill](https://github.com/scottjehl/picturefill) (responsive image polyfill)
+AngularJS directive for responsive images
 
 ## Usage
 
-One-time bindings. Note that `sources` should be defined from small to large, unlike in Picturefill v2.
+One-time bindings. Note that `sources` should be defined from small to large, unlike in [Picturefill](https://github.com/scottjehl/picturefill) v2.
 
 ```
-	<span nb-picturefill-once
+	<span nb-picture-once
 		  ng-attr-source-width="{{::image.width}}"
 		  ng-attr-source-height="{{::image.height}}"
 		  ng-attr-default-source="{{::(image.styles.small + ', ' + image.styles.medium + ' 2x')}}"

@@ -1,5 +1,5 @@
 /**
- * AngularJS picturefill demo
+ * AngularJS responsive images demo
  *
  * @author Hein Bekker <hein@netbek.co.za>
  * @copyright (c) 2015 Hein Bekker
@@ -10,9 +10,9 @@
 	'use strict';
 
 	angular
-		.module('nb.picturefill.demo', [
+		.module('nb.picture.demo', [
 			'angularStats',
-			'nb.picturefill'
+			'nb.picture'
 		])
 		.directive('childScope', childScopeDirective)
 		.controller('MainController', MainController)

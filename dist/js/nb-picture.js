@@ -1,5 +1,5 @@
 /**
- * AngularJS directive for Picturefill (responsive image polyfill)
+ * AngularJS directive for responsive images
  *
  * @author Hein Bekker <hein@netbek.co.za>
  * @copyright (c) 2015 Hein Bekker
@@ -10,22 +10,22 @@
 	'use strict';
 
 	angular
-		.module('nb.picturefill', [
+		.module('nb.picture', [
 			'nb.i18n',
-			'nb.picturefill.templates'
+			'nb.picture.templates'
 		])
 		.factory('picturefill', Picturefill)
-		.provider('nbPicturefillConfig', nbPicturefillConfig)
-		.directive('nbPicturefill', nbPicturefillDirective)
-		.directive('nbPicturefillOnce', nbPicturefillOnceDirective)
-		.controller('nbPicturefillController', nbPicturefillController);
+		.provider('nbPictureConfig', nbPictureConfig)
+		.directive('nbPicture', nbPictureDirective)
+		.directive('nbPictureOnce', nbPictureOnceDirective)
+		.controller('nbPictureController', nbPictureController);
 
 	Picturefill.$inject = ['$window'];
 	function Picturefill ($window) {
 		return $window.picturefill;
 	}
 
-	function nbPicturefillConfig () {
+	function nbPictureConfig () {
 		var config = {
 			mediaqueries: {
 				small: 'only screen and (min-width: 0px)',
@@ -54,8 +54,8 @@
 		};
 	}
 
-	nbPicturefillController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPicturefillConfig', 'picturefill'];
-	function nbPicturefillController ($scope, $element, $attrs, $timeout, nbI18N, nbPicturefillConfig, picturefill) {
+	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill'];
+	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill) {
 		/*jshint validthis: true */
 		var flags = {
 			initialized: false // {Boolean} Whether init() has been fired.
@@ -175,8 +175,8 @@
 				var source = sources[i];
 				var media;
 
-				if (angular.isDefined(source[1]) && source[1] in nbPicturefillConfig.mediaqueries) {
-					media = nbPicturefillConfig.mediaqueries[source[1]];
+				if (angular.isDefined(source[1]) && source[1] in nbPictureConfig.mediaqueries) {
+					media = nbPictureConfig.mediaqueries[source[1]];
 				}
 
 				arr.push({
@@ -223,12 +223,12 @@
 		};
 	}
 
-	function nbPicturefillDirective () {
+	function nbPictureDirective () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			controller: 'nbPicturefillController',
-			templateUrl: 'templates/nb-picturefill.html',
+			controller: 'nbPictureController',
+			templateUrl: 'templates/nb-picture.html',
 			link: function (scope, element, attrs, controller) {
 				controller.init();
 
@@ -244,12 +244,12 @@
 		};
 	}
 
-	function nbPicturefillOnceDirective () {
+	function nbPictureOnceDirective () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			controller: 'nbPicturefillController',
-			templateUrl: 'templates/nb-picturefill-once.html',
+			controller: 'nbPictureController',
+			templateUrl: 'templates/nb-picture-once.html',
 			link: function (scope, element, attrs, controller) {
 				controller.init();
 
@@ -266,3 +266,50 @@
 		};
 	}
 })(window, window.angular);
+angular.module('nb.picture.templates', ['templates/nb-picture-bindonce.html', 'templates/nb-picture-once.html', 'templates/nb-picture.html']);
+
+angular.module("templates/nb-picture-bindonce.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picture-bindonce.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in sources\"\n" +
+    "			bindonce=\"source\"\n" +
+    "			bo-attr\n" +
+    "			bo-attr-srcset=\"source.srcset\"\n" +
+    "			bo-attr-media=\"source.media\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img bindonce=\"img\"\n" +
+    "		 bo-attr\n" +
+    "		 bo-attr-srcset=\"img.srcset\"\n" +
+    "		 bo-attr-alt=\"img.alt\"\n" +
+    "		 bo-attr-usemap=\"img.usemap\" />\n" +
+    "</picture>");
+}]);
+
+angular.module("templates/nb-picture-once.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picture-once.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in ::sources\"\n" +
+    "			ng-srcset=\"{{::source.srcset}}\"\n" +
+    "			ng-attr-media=\"{{::source.media}}\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img ng-srcset=\"{{::img.srcset}}\"\n" +
+    "		 ng-attr-alt=\"{{::img.alt}}\"\n" +
+    "		 ng-attr-usemap=\"{{::img.usemap}}\" />\n" +
+    "</picture>");
+}]);
+
+angular.module("templates/nb-picture.html", []).run(["$templateCache", function($templateCache) {
+  $templateCache.put("templates/nb-picture.html",
+    "<picture>\n" +
+    "	<!--[if IE 9]><video style=\"display: none;\"><![endif]-->\n" +
+    "	<source ng-repeat=\"source in sources\"\n" +
+    "			ng-srcset=\"{{source.srcset}}\"\n" +
+    "			ng-attr-media=\"{{source.media}}\" />\n" +
+    "	<!--[if IE 9]></video><![endif]-->\n" +
+    "	<img ng-srcset=\"{{img.srcset}}\"\n" +
+    "		 ng-attr-alt=\"{{img.alt}}\"\n" +
+    "		 ng-attr-usemap=\"{{img.usemap}}\" />\n" +
+    "</picture>");
+}]);
