@@ -112,7 +112,8 @@
 			return {
 				alt: $attrs.alt,
 				defaultSource: $attrs.defaultSource,
-				sources: $attrs.sources
+				sources: $attrs.sources,
+				usemap: $attrs.usemap
 			};
 		};
 
@@ -194,7 +195,8 @@
 			// Set default image.
 			$scope.img = {
 				srcset: options.defaultSource,
-				alt: options.alt
+				alt: options.alt,
+				usemap: options.usemap
 			};
 
 			timeouts.push($timeout(function () {

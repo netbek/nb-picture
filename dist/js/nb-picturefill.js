@@ -112,7 +112,8 @@
 			return {
 				alt: $attrs.alt,
 				defaultSource: $attrs.defaultSource,
-				sources: $attrs.sources
+				sources: $attrs.sources,
+				usemap: $attrs.usemap
 			};
 		};
 
@@ -194,7 +195,8 @@
 			// Set default image.
 			$scope.img = {
 				srcset: options.defaultSource,
-				alt: options.alt
+				alt: options.alt,
+				usemap: options.usemap
 			};
 
 			timeouts.push($timeout(function () {
@@ -279,7 +281,8 @@ angular.module("templates/nb-picturefill-bindonce.html", []).run(["$templateCach
     "	<img bindonce=\"img\"\n" +
     "		 bo-attr\n" +
     "		 bo-attr-srcset=\"img.srcset\"\n" +
-    "		 bo-attr-alt=\"img.alt\" />\n" +
+    "		 bo-attr-alt=\"img.alt\"\n" +
+    "		 bo-attr-usemap=\"img.usemap\" />\n" +
     "</picture>");
 }]);
 
@@ -292,7 +295,8 @@ angular.module("templates/nb-picturefill-once.html", []).run(["$templateCache", 
     "			ng-attr-media=\"{{::source.media}}\" />\n" +
     "	<!--[if IE 9]></video><![endif]-->\n" +
     "	<img ng-srcset=\"{{::img.srcset}}\"\n" +
-    "		 ng-attr-alt=\"{{::img.alt}}\" />\n" +
+    "		 ng-attr-alt=\"{{::img.alt}}\"\n" +
+    "		 ng-attr-usemap=\"{{::img.usemap}}\" />\n" +
     "</picture>");
 }]);
 
@@ -305,6 +309,7 @@ angular.module("templates/nb-picturefill.html", []).run(["$templateCache", funct
     "			ng-attr-media=\"{{source.media}}\" />\n" +
     "	<!--[if IE 9]></video><![endif]-->\n" +
     "	<img ng-srcset=\"{{img.srcset}}\"\n" +
-    "		 ng-attr-alt=\"{{img.alt}}\" />\n" +
+    "		 ng-attr-alt=\"{{img.alt}}\"\n" +
+    "		 ng-attr-usemap=\"{{img.usemap}}\" />\n" +
     "</picture>");
 }]);
