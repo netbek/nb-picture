@@ -17,3 +17,4 @@ One-time bindings. Note that `sources` should be defined from small to large, un
 ## To do
 
 * Throttle canvas redraw on window resize
+* Support `circle` and `poly` shapes
