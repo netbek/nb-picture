@@ -1,6 +1,6 @@
 # nb-picture
 
-AngularJS directive for responsive images
+AngularJS directive for responsive images and image maps
 
 ## Usage
 

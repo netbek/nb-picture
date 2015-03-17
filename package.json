@@ -1,7 +1,7 @@
 {
   "name": "nb-picture",
   "version": "0.0.1",
-  "description": "AngularJS directive for responsive images",
+  "description": "AngularJS directive for responsive images and image maps",
   "homepage": "https://github.com/netbek/nb-picture",
   "author": {
     "name": "Hein Bekker",
@@ -16,6 +16,7 @@
     "grunt": "^0.4.5",
     "grunt-contrib-clean": "^0.6.0",
     "grunt-contrib-concat": "^0.5.0",
+    "grunt-contrib-cssmin": "^0.11.0",
     "grunt-contrib-jshint": "^0.11.0",
     "grunt-contrib-uglify": "^0.7.0",
     "grunt-html2js": "^0.3.0"
