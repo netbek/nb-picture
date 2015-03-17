@@ -447,7 +447,12 @@
 		 * Removes window event handlers.
 		 */
 		function removeWindowEventListeners () {
-			// @todo
+			if (window.removeEventListener) {
+				window.removeEventListener('resize', onWindowResize, false);
+			}
+			else if (window.detachEvent) {
+				window.detachEvent('onresize', onWindowResize);
+			}
 		}
 
 		/**
