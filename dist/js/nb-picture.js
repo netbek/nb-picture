@@ -840,7 +840,7 @@ angular.module("templates/nb-picture-bindonce.html", []).run(["$templateCache", 
 
 angular.module("templates/nb-picture-once.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/nb-picture-once.html",
-    "<span class=\"nb-picture\">\n" +
+    "<span class=\"picture\">\n" +
     "	<map ng-if=\"::map.areas\"\n" +
     "		 ng-attr-name=\"{{::map.name}}\">\n" +
     "		<area ng-repeat=\"area in ::map.areas track by area.$id\"\n" +
@@ -878,7 +878,7 @@ angular.module("templates/nb-picture-resize-canvas.html", []).run(["$templateCac
 
 angular.module("templates/nb-picture-resize.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/nb-picture-resize.html",
-    "<span class=\"nb-picture-resize\">\n" +
+    "<span class=\"picture-resize\">\n" +
     "	<span nb-picture-resize-canvas></span>\n" +
     "	<img ng-src=\"{{map.img.src}}\"\n" +
     "		 ng-attr-alt=\"{{map.img.alt}}\"\n" +
@@ -888,7 +888,7 @@ angular.module("templates/nb-picture-resize.html", []).run(["$templateCache", fu
 
 angular.module("templates/nb-picture.html", []).run(["$templateCache", function($templateCache) {
   $templateCache.put("templates/nb-picture.html",
-    "<span class=\"nb-picture\">\n" +
+    "<span class=\"picture\">\n" +
     "	<map ng-if=\"map.areas\"\n" +
     "		 ng-attr-name=\"{{map.name}}\">\n" +
     "		<area ng-repeat=\"area in map.areas track by area.$id\"\n" +
