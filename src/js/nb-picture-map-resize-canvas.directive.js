@@ -11,14 +11,14 @@
 
 	angular
 		.module('nb.picture')
-		.directive('nbPictureResizeCanvas', nbPictureResizeCanvasDirective);
+		.directive('nbPictureMapResizeCanvas', nbPictureMapResizeCanvasDirective);
 
-	function nbPictureResizeCanvasDirective () {
+	function nbPictureMapResizeCanvasDirective () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			controller: 'nbPictureResizeCanvasController',
-			templateUrl: 'templates/nb-picture-resize-canvas.html',
+			controller: 'nbPictureMapResizeCanvasController',
+			templateUrl: 'templates/nb-picture-map-resize-canvas.html',
 			link: function (scope, element, attrs, controller) {
 				controller.init();
 

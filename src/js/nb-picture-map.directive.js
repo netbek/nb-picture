@@ -11,14 +11,25 @@
 
 	angular
 		.module('nb.picture')
-		.directive('nbPictureResize', nbPictureResizeDirective);
+		.directive('nbPictureMap', nbPictureMapDirective);
 
-	function nbPictureResizeDirective () {
+	function nbPictureMapDirective () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			templateUrl: 'templates/nb-picture-resize.html',
+			controller: 'nbPictureMapController',
+			templateUrl: 'templates/nb-picture-map.html',
 			link: function (scope, element, attrs, controller) {
+				controller.init();
+
+				var watch = scope.$watch(controller.attrs, function (newValue, oldValue, scope) {
+					controller.update(newValue);
+				}, true);
+
+				scope.$on('$destroy', function () {
+					watch();
+					controller.destroy();
+				});
 			}
 		};
 	}

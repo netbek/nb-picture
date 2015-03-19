@@ -11,10 +11,10 @@
 
 	angular
 		.module('nb.picture')
-		.controller('nbPictureResizeCanvasController', nbPictureResizeCanvasController);
+		.controller('nbPictureMapResizeCanvasController', nbPictureMapResizeCanvasController);
 
-	nbPictureResizeCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout'];
-	function nbPictureResizeCanvasController ($scope, $element, $attrs, $timeout) {
+	nbPictureMapResizeCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout'];
+	function nbPictureMapResizeCanvasController ($scope, $element, $attrs, $timeout) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false, // {Boolean} Whether init() has been fired.

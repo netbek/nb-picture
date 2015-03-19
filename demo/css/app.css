@@ -6,11 +6,11 @@
  * @license http://www.gnu.org/licenses/agpl-3.0.txt AGPLv3
  */
 
-.nb-picture {
+.picture-map {
 	width: 100%;
 }
 
-.nb-picture picture img {
+.picture-map picture img {
 	width: 100%;
 	height: auto;
 }

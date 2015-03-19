@@ -1,18 +1,4 @@
 <span class="picture">
-	<map ng-if="::map.areas"
-		 ng-attr-name="{{::map.name}}">
-		<area ng-repeat="area in ::map.areas track by area.$id"
-			  ng-attr-id="{{::area.$id}}"
-			  ng-attr-shape="{{::area.shape}}"
-			  ng-attr-coords="{{area.$coords | join:','}}"
-			  ng-href="{{::area.href}}"
-			  ng-attr-alt="{{::area.alt}}"
-			  ng-attr-title="{{::area.title}}"
-			  ng-focus="showHighlight($event);"
-			  ng-mouseenter="showHighlight($event);"
-			  ng-blur="hideHighlight($event);"
-			  ng-mouseleave="hideHighlight($event);" />
-	</map>
 	<picture>
 		<!--[if IE 9]><video style="display: none;"><![endif]-->
 		<source ng-repeat="source in ::picture.sources"
@@ -20,9 +6,6 @@
 				ng-attr-media="{{::source.media}}" />
 		<!--[if IE 9]></video><![endif]-->
 		<img ng-srcset="{{::picture.img.srcset}}"
-			 ng-attr-alt="{{::picture.img.alt}}"
-			 ng-attr-usemap="{{::picture.img.usemap}}" />
+			 ng-attr-alt="{{::picture.img.alt}}" />
 	</picture>
-	<span nb-picture-resize
-		  ng-if="map.$show && (map.highlight.enable || map.resize)"></span>
 </span>

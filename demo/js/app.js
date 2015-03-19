@@ -58,7 +58,7 @@
 				fill: true,
 				fillColor: 'FF0000',
 				fillOpacity: 0.5,
-				alwaysOn: true
+				alwaysOn: false
 			}
 		};
 
@@ -88,7 +88,18 @@
 			}
 		};
 
-		$scope.image = {
+		$scope.demo = {
+			width: 720,
+			height: 960,
+			styles: {
+				small: 'http://lorempixel.com/180/240/abstract/2',
+				medium: 'http://lorempixel.com/360/480/abstract/2',
+				large: 'http://lorempixel.com/720/960/abstract/2',
+				xlarge: 'http://lorempixel.com/1440/1920/abstract/2'
+			}
+		};
+
+		$scope.demoMap = {
 			map: relMap,
 			width: 720,
 			height: 960,
@@ -96,20 +107,18 @@
 				small: 'http://lorempixel.com/180/240/abstract/2',
 				medium: 'http://lorempixel.com/360/480/abstract/2',
 				large: 'http://lorempixel.com/720/960/abstract/2',
-				xlarge: 'http://lorempixel.com/1440/1920/abstract/2',
-				xxlarge: 'http://lorempixel.com/2880/3840/abstract/2'
+				xlarge: 'http://lorempixel.com/1440/1920/abstract/2'
 			}
 		};
 
-		$timeout(function () {
-			$scope.image.styles = {
-				small: 'http://lorempixel.com/180/240/abstract/5',
-				medium: 'http://lorempixel.com/360/480/abstract/5',
-				large: 'http://lorempixel.com/720/960/abstract/5',
-				xlarge: 'http://lorempixel.com/1440/1920/abstract/5',
-				xxlarge: 'http://lorempixel.com/2880/3840/abstract/5'
-			};
-		}, 5000);
+//		$timeout(function () {
+//			$scope.demo.styles = {
+//				small: 'http://lorempixel.com/180/240/abstract/5',
+//				medium: 'http://lorempixel.com/360/480/abstract/5',
+//				large: 'http://lorempixel.com/720/960/abstract/5',
+//				xlarge: 'http://lorempixel.com/1440/1920/abstract/5'
+//			};
+//		}, 5000);
 	}
 
 	function runBlock () {
