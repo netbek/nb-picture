@@ -17,8 +17,7 @@
 	function nbPictureMapResizeCanvasController ($scope, $element, $attrs, $timeout) {
 		/*jshint validthis: true */
 		var flags = {
-			init: false, // {Boolean} Whether init() has been fired.
-			resize: false // {Boolean} Whether resize() has been fired.
+			init: false // {Boolean} Whether init() has been fired.
 		};
 		var deregister = [];
 		var cache = {
