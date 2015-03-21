@@ -10,7 +10,7 @@
 	'use strict';
 
 	angular
-		.module('nb.picture')
+		.module('widget')
 		.controller('widgetMapOverlayMarkersController', widgetMapOverlayMarkersController);
 
 	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils'];

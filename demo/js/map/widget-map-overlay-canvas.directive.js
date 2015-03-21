@@ -10,7 +10,7 @@
 	'use strict';
 
 	angular
-		.module('nb.picture')
+		.module('widget')
 		.directive('widgetMapOverlayCanvas', widgetMapOverlayCanvasDirective);
 
 	function widgetMapOverlayCanvasDirective () {
