@@ -45,14 +45,13 @@
 						var x = 0, y = 0;
 
 						if (area.shape === 'circle') {
-							// @todo
+							x = area.$coords[0];
+							y = area.$coords[1];
 						}
-						else if (area.shape === 'poly') {
-							// @todo
-						}
-						else if (area.shape === 'rect') {
-							x = area.$coords[0] + ((area.$coords[2] - area.$coords[0]) / 2);
-							y = area.$coords[1] + ((area.$coords[3] - area.$coords[1]) / 2);
+						else if (area.shape === 'poly' || area.shape === 'rect') {
+							var center = getPolyCenter(area.$coords, true);
+							x = center[0];
+							y = center[1];
 						}
 
 						result.newValue[index].style = {
@@ -98,5 +97,57 @@
 				fn();
 			});
 		};
+
+		/**
+		 * Calculates the center of a polygon's bounds.
+		 *
+		 * @param {Array} coords
+		 * @param {Boolean} round
+		 * @returns {Array}
+		 */
+		function getPolyCenter (coords, round) {
+			var xMin = 0, yMin = 0, xMax = 0, yMax = 0, coord;
+
+			for (var i = 0, il = coords.length; i < il; i++) {
+				coord = coords[i];
+
+				if (i % 2 === 0) {
+					if (i === 0) {
+						xMin = coord;
+					}
+					else {
+						if (coord < xMin) {
+							xMin = coord;
+						}
+						if (coord > xMax) {
+							xMax = coord;
+						}
+					}
+				}
+				else {
+					if (i === 1) {
+						yMin = coord;
+					}
+					else {
+						if (coord < yMin) {
+							yMin = coord;
+						}
+						if (coord > yMax) {
+							yMax = coord;
+						}
+					}
+				}
+			}
+
+			var x = (xMin + xMax) / 2;
+			var y = (yMin + yMax) / 2;
+
+			if (round) {
+				x = Math.round(x);
+				y = Math.round(y);
+			}
+
+			return [x, y];
+		}
 	}
 })(window, window.angular);

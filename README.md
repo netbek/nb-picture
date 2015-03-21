@@ -34,7 +34,6 @@ See `/demo/map.php` for an example with highlighted areas and SVG markers.
 
 ## To do
 
-* Image map: Support `circle` and `poly` shapes.
 * Demo image map: Throttle canvas redraw on window resize.
 
 

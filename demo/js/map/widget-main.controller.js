@@ -37,13 +37,26 @@
 					{
 						shape: 'rect',
 						coords: [0.5, 0.5, 0.8, 0.8]
+					},
+					{
+						shape: 'poly',
+						coords: [
+							0.4, 0.4,
+							0.2, 0.4,
+							0.2, 0.2,
+							0.4, 0.2
+						]
+					},
+					{
+						shape: 'circle',
+						coords: [0.8, 0.2, 0.1]
 					}
 				],
 				resize: true,
 				relCoords: true,
 				overlays: {
 					canvas: {
-						hover: true,
+						alwaysOn: true,
 						fill: true,
 						fillColor: 'FF0000',
 						fillOpacity: 0.5

@@ -756,7 +756,7 @@
 							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
 						}
 						else {
-							// @todo Calc radius
+							arr[i] = Math.round(coords[i] * Math.min(width, height));
 						}
 					}
 				}

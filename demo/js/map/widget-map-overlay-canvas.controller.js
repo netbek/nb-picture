@@ -128,10 +128,31 @@
 				var coords = area.$coords;
 
 				if (shape === 'circle') {
-					// @todo
+					ctx.beginPath();
+					ctx.arc(coords[0], coords[1], coords[2], 0, Math.PI * 2, true);
+					ctx.closePath();
+
+					if (config.fill) {
+						ctx.fill();
+					}
 				}
 				else if (shape === 'poly') {
-					// @todo
+					ctx.beginPath();
+
+					for (var i = 0, il = coords.length; i < il; i += 2) {
+						if (i === 0) {
+							ctx.moveTo(coords[i], coords[i + 1]);
+						}
+						else {
+							ctx.lineTo(coords[i], coords[i + 1]);
+						}
+					}
+
+					ctx.closePath();
+
+					if (config.fill) {
+						ctx.fill();
+					}
 				}
 				else if (shape === 'rect') {
 					var x = coords[0];
