@@ -13,8 +13,8 @@
 		.module('nb.picture')
 		.controller('nbPictureController', nbPictureController);
 
-	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill'];
-	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill) {
+	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_'];
+	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
@@ -142,9 +142,11 @@
 				alt: options.alt
 			};
 
+			// Assign data to scope.
 			$scope.picture = picture;
 
 			timeouts.push($timeout(function () {
+				// Run picture polyfill.
 				picturefill($element);
 			}));
 		};

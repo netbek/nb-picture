@@ -57,9 +57,8 @@ module.exports = function (grunt) {
 					'src/js/nb-picture-map.controller.js',
 					'src/js/nb-picture-map.directive.js',
 					'src/js/nb-picture-map-once.directive.js',
-					'src/js/nb-picture-map-resize.directive.js',
-					'src/js/nb-picture-map-resize-canvas.controller.js',
-					'src/js/nb-picture-map-resize-canvas.directive.js',
+					'src/js/nb-picture-map-overlay-areas.directive.js',
+					'src/js/nb-picture-map-overlay-utils.service.js',
 					'src/js/picturefill.service.js',
 					'build/js/<%= pkg.name %>-templates.js'
 				],
@@ -85,6 +84,28 @@ module.exports = function (grunt) {
 				src: ['dist/js/<%= pkg.name %>.js'],
 				dest: 'dist/js/<%= pkg.name %>.min.js'
 			}
+		},
+		svgstore: {
+			options: {
+				includeTitleElement: false,
+				preserveDescElement: false
+			},
+			src: {
+				files: {
+					'demo/svg/icon.svg': 'demo/svg/icon/*.svg'
+				}
+			}
+		},
+		svg2png_colorfy: {
+			dist: {
+				options: {
+					colors: {
+						black: '#000',
+						blue: '#0000FF'
+					}
+				},
+				files: [{cwd: 'demo/svg/icon/', src: ['*.svg'], dest: 'demo/img/'}]
+			}
 		}
 	});
 
@@ -94,6 +115,8 @@ module.exports = function (grunt) {
 	grunt.loadNpmTasks('grunt-contrib-jshint');
 	grunt.loadNpmTasks('grunt-contrib-uglify');
 	grunt.loadNpmTasks('grunt-html2js');
+	grunt.loadNpmTasks('grunt-svg2png-colorfy');
+	grunt.loadNpmTasks('grunt-svgstore');
 
 	grunt.registerTask('default', [
 		'jshint',
@@ -102,6 +125,8 @@ module.exports = function (grunt) {
 		'concat',
 		'cssmin',
 		'uglify',
+		'svgstore',
+		'svg2png_colorfy',
 		'clean:exit',
 	]);
 

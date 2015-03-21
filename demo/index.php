@@ -3,7 +3,7 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>nb-picture-map demo</title>
+		<title>nb-picture demo</title>
 
 		<link rel="stylesheet" href="../src/css/nb-picture.css" />
 		<link rel="stylesheet" href="../demo/css/app.css" />
@@ -14,6 +14,7 @@
 		<script src="../bower_components/ng-stats/dist/ng-stats.js"></script>
 		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
 		<script src="../bower_components/nb-lodash/dist/js/nb-lodash.js"></script>
+		<script src="../bower_components/nb-icon/dist/js/nb-icon.js"></script>
 
 		<script src="../dist/js/nb-picture.js"></script>
 <!--
@@ -26,17 +27,17 @@
 		<script src="../src/js/nb-picture-map.controller.js"></script>
 		<script src="../src/js/nb-picture-map.directive.js"></script>
 		<script src="../src/js/nb-picture-map-once.directive.js"></script>
-		<script src="../src/js/nb-picture-map-resize.directive.js"></script>
-		<script src="../src/js/nb-picture-map-resize-canvas.controller.js"></script>
-		<script src="../src/js/nb-picture-map-resize-canvas.directive.js"></script>
+		<script src="../src/js/nb-picture-map-overlay-areas.directive.js"></script>
+		<script src="../src/js/nb-widget-map-overlay-canvas.controller.js"></script>
+		<script src="../src/js/nb-widget-map-overlay-canvas.directive.js"></script>
+		<script src="../src/js/nb-picture-map-overlay-utils.service.js"></script>
 		<script src="../src/js/picturefill.service.js"></script>
 		<script src="../src/js/nb-picture-templates.js"></script>
 -->
-
 		<script src="js/app.js"></script>
 	</head>
-	<body ng-controller="MainController">
-		<div>Image src: <span ng-bind="demoMap.styles.medium"></span></div>
+	<body ng-controller="mainController">
+		<div>Image src: <span ng-bind="demo.styles.medium"></span></div>
 
 		<div child-scope id="scope1">
 			<div angular-stats
@@ -45,10 +46,9 @@
 				 on-watch-count-update="onWatchCountUpdate(watchCount)">
 				Normal binding. Number of watches: <span class="watch-count"></span>
 			</div>
-			<span nb-picture-map
-				  ng-attr-map="{{demoMap.map}}"
-				  ng-attr-default-source="{{demoMap.styles.small + ', ' + demoMap.styles.medium + ' 2x'}}"
-				  ng-attr-sources="{{'[[\'' + demoMap.styles.medium + ', ' + demoMap.styles.large + ' 2x\', \'medium\'], [\'' + demoMap.styles.large + ', ' + demoMap.styles.xlarge + ' 2x\', \'large\']]'}}"></span>
+			<span nb-picture
+				  ng-attr-default-source="{{demo.styles.small + ', ' + demo.styles.medium + ' 2x'}}"
+				  ng-attr-sources="{{'[[\'' + demo.styles.medium + ', ' + demo.styles.large + ' 2x\', \'medium\'], [\'' + demo.styles.large + ', ' + demo.styles.xlarge + ' 2x\', \'large\']]'}}"></span>
 		</div>
 
 		<div child-scope id="scope2">
@@ -58,10 +58,9 @@
 				 on-watch-count-update="onWatchCountUpdate(watchCount)">
 				One-time binding. Number of watches: <span class="watch-count"></span>
 			</div>
-			<span nb-picture-map-once
-				  ng-attr-map="{{::demoMap.map}}"
-				  ng-attr-default-source="{{::(demoMap.styles.small + ', ' + demoMap.styles.medium + ' 2x')}}"
-				  ng-attr-sources="{{::('[[\'' + demoMap.styles.medium + ', ' + demoMap.styles.large + ' 2x\', \'medium\'], [\'' + demoMap.styles.large + ', ' + demoMap.styles.xlarge + ' 2x\', \'large\']]')}}"></span>
+			<span nb-picture-once
+				  ng-attr-default-source="{{::(demo.styles.small + ', ' + demo.styles.medium + ' 2x')}}"
+				  ng-attr-sources="{{::('[[\'' + demo.styles.medium + ', ' + demo.styles.large + ' 2x\', \'medium\'], [\'' + demo.styles.large + ', ' + demo.styles.xlarge + ' 2x\', \'large\']]')}}"></span>
 		</div>
 	</body>
 </html>

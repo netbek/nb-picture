@@ -1,0 +1,6 @@
+<span class="widget-map-overlay-markers">
+	<span ng-repeat="area in highlights track by area.$id"
+		  ng-attr-style="{{'top: ' + area.style.top + '; left: ' + area.style.left + ';'}}"
+		  nb-icon
+		  data-id="{{map.overlays.markers.icon.id}}"></span>
+</span>

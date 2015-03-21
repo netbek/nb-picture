@@ -8,10 +8,11 @@
 			  ng-href="{{::area.href}}"
 			  ng-attr-alt="{{::area.alt}}"
 			  ng-attr-title="{{::area.title}}"
-			  ng-focus="showHighlight($event);"
-			  ng-mouseenter="showHighlight($event);"
-			  ng-blur="hideHighlight($event);"
-			  ng-mouseleave="hideHighlight($event);" />
+			  ng-click="clickArea($event);"
+			  ng-focus="focusArea($event);"
+			  ng-blur="focusArea($event, true);"
+			  ng-mouseenter="hoverArea($event);"
+			  ng-mouseleave="hoverArea($event, true);" />
 	</map>
 	<picture>
 		<!--[if IE 9]><video style="display: none;"><![endif]-->
@@ -23,6 +24,5 @@
 			 ng-attr-alt="{{::picture.img.alt}}"
 			 ng-attr-usemap="{{::picture.img.usemap}}" />
 	</picture>
-	<span nb-picture-map-resize
-		  ng-if="map.$show && (map.highlight.enable || map.resize)"></span>
+	<span class="picture-map-overlays" ng-transclude></span>
 </span>

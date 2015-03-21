@@ -15,26 +15,21 @@
 
 	var uniqid = 0;
 
-	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill'];
-	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill) {
+	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_'];
+	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _) {
 		/*jshint validthis: true */
 		var flags = {
-			init: false // {Boolean} Whether init() has been fired.
+			init: false, // {Boolean} Whether init() has been fired.
+			touch: false // {Boolean} Whether the device supports touch events.
 		};
 		var timeouts = [];
 		var defaultMap = {
 			$show: false, // {Boolean} Internal. Whether to show the map.
-			name: undefined, // {String} DOM element `name` attribute.
+			name: undefined, // {String} `name` attribute of map DOM element.
 			areas: [], // {Array} Array of map areas. See `defaultArea`.
-			resize: false, // {Boolean} Whether to resize the map according to the image.
+			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
 			relCoords: false, // {Boolean} Whether the map has relative (percentage) coordinates.
-			highlight: {
-				enable: false, // {Boolean} Whether to highlight map areas.
-				fill: true, // {Boolean} Whether to fill the shape.
-				fillColor: 'FF0000', // {String} The color to fill the shape with.
-				fillOpacity: 0.5, // {Number} The opacity of the fill (0 = fully transparent, 1 = fully opaque).
-				alwaysOn: false // {Boolean} Whether to always show the highlighted areas.
-			}
+			overlays: {} // {Object} Overlay configs keyed by ID.
 		};
 		var defaultArea = {
 			$id: undefined, // {String} Internal. Unique ID.
@@ -46,51 +41,42 @@
 			title: '', // {String}
 			data: undefined // {Object} Custom data object.
 		};
+		var defaultOverlay = {
+			alwaysOn: false, // {Boolean} Whether to always show the highlighted map areas.
+			click: false, // {Boolean} Whether to show or hide highlights on click.
+			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
+			hover: false, // {Boolean} Whether to show or hide highlights on mouse enter or leave.
+			single: false // {Boolean} Whether to highlight only one map area at the same time.
+		};
 		var $img, img;
 
 		$scope.complete = false; // {Boolean} Whether the image has loaded or failed to load.
 		$scope.map = _.cloneDeep(defaultMap); // {Object}
-		$scope.highlights = []; // {Array} Array of highlighted map areas (not necessarily all). See `defaultArea`.
 
 		/**
-		 * Shows highlighted map area.
 		 *
 		 * @param {Event} event
 		 */
-		$scope.showHighlight = function (event) {
-			var target = event.target;
-			var index = _.findIndex($scope.highlights, {$id: target.id});
-
-			if (index < 0) {
-				var area = _.find($scope.map.areas, {$id: target.id});
-
-				if (area) {
-					$scope.highlights.push(_.cloneDeep(area));
-
-					// Redraw canvas.
-					$scope.$broadcast('nbPicture:draw');
-				}
-			}
+		$scope.clickArea = function (event) {
+			$scope.$broadcast('nbPicture:clickArea', event);
 		};
 
 		/**
-		 * Hides highlighted map area.
 		 *
 		 * @param {Event} event
+		 * @param {Boolean} blur
 		 */
-		$scope.hideHighlight = function (event) {
-			if ($scope.map.highlight.alwaysOn) {
-				return;
-			}
+		$scope.focusArea = function (event, blur) {
+			$scope.$broadcast('nbPicture:focusArea', event, blur);
+		};
 
-			var index = _.findIndex($scope.highlights, {$id: event.target.id});
-
-			if (index >= 0) {
-				$scope.highlights.splice(index, 1);
-
-				// Redraw canvas.
-				$scope.$broadcast('nbPicture:draw');
-			}
+		/**
+		 *
+		 * @param {Event} event
+		 * @param {Boolean} blur
+		 */
+		$scope.hoverArea = function (event, blur) {
+			$scope.$broadcast('nbPicture:hoverArea', event, blur);
 		};
 
 		/**
@@ -153,8 +139,6 @@
 			if ($img) {
 				removeImgEventListeners();
 			}
-
-			$scope.highlights = [];
 		};
 
 		/**
@@ -199,6 +183,25 @@
 				});
 			});
 
+			// Build overlay configs.
+			var overlays = {};
+			_.forEach(map.overlays, function (overlay, index) {
+				overlay = _.extend({}, defaultOverlay, overlay);
+
+				if (flags.touch) {
+					overlay.click = true;
+					overlay.focus = false;
+					overlay.hover = false;
+				}
+
+				// Only add overlays that have events.
+				if (overlay.alwaysOn || overlay.click || overlay.focus || overlay.hover) {
+					overlay.$id = index;
+					overlays[index] = overlay;
+				}
+			});
+			map.overlays = overlays;
+
 			var picture = {
 				sources: [],
 				img: {}
@@ -235,16 +238,12 @@
 				usemap: !map.resize && map.name ? '#' + map.name : ''
 			};
 
-			map.img = {
-				src: 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7', // Transparent 1x1 GIF.
-				alt: options.alt,
-				usemap: map.name ? '#' + map.name : ''
-			};
-
+			// Assign data to scope.
 			$scope.map = map;
 			$scope.picture = picture;
 
 			timeouts.push($timeout(function () {
+				// Run picture polyfill.
 				picturefill($element);
 
 				// Add window event handlers.
@@ -277,12 +276,7 @@
 
 				removeImgEventListeners();
 
-				timeouts.push($timeout(function () {
-					// Hide the map.
-					$scope.map.$show = false;
-
-					$scope.$apply();
-				}));
+				$scope.$broadcast('nbPicture:baseError');
 			}
 		}
 
@@ -297,26 +291,12 @@
 
 				removeImgEventListeners();
 
-				if ($scope.map.highlight.enable || $scope.map.resize) {
-					timeouts.push($timeout(function () {
-						// Convert map coordinates to absolute values.
-						calcMapCoords($scope.map);
+				// Convert map coordinates to absolute values.
+				calcMapCoords($scope.map);
 
-						// If all map highlights should always be on.
-						if ($scope.map.highlight.enable && $scope.map.highlight.alwaysOn) {
-							// Add all the map areas.
-							$scope.highlights = _.cloneDeep($scope.map.areas);
+				$scope.$broadcast('nbPicture:baseLoad');
 
-							// Redraw canvas.
-							$scope.$broadcast('nbPicture:draw');
-						}
-
-						// Show the map.
-						$scope.map.$show = true;
-
-						$scope.$apply();
-					}));
-				}
+				$scope.$apply();
 			}
 		}
 
@@ -344,26 +324,10 @@
 		 * @param {Event} event
 		 */
 		function onWindowResize (event) {
-			if ($scope.map.resize) {
-				// Reconvert relative coordinates to absolute coordinates.
-				calcMapCoords($scope.map);
-			}
+			// Convert map coordinates to absolute values.
+			calcMapCoords($scope.map);
 
-			if ($scope.map.highlight.enable && $scope.highlights.length) {
-				// Fetch highlighted areas from newly converted map.
-				var ids = _.pluck($scope.highlights, '$id');
-				var arr = [];
-				_.forEach(ids, function (id) {
-					var area = _.find($scope.map.areas, {$id: id});
-					if (area) {
-						arr.push(_.cloneDeep(area));
-					}
-				});
-				$scope.highlights = arr;
-
-				// Redraw canvas.
-				$scope.$broadcast('nbPicture:draw');
-			}
+			$scope.$broadcast('nbPicture:resize');
 
 			$scope.$apply();
 		}
@@ -399,43 +363,47 @@
 		 * @returns {Object}
 		 */
 		function calcMapCoords (map) {
-			// If the map has relative (percentage) coordinates, then convert
-			// the coordinates to absolute values.
-			if (map.relCoords) {
-				var width = $scope.width();
-				var height = $scope.height();
-
-				_.forEach(map.areas, function (area, index) {
-					var shape = area.shape.toLowerCase();
-					var coords = area.coords;
-					var i;
-					var len = coords.length;
-					var arr = new Array(len);
-
-					if (shape === 'circle') {
-						for (i = 0; i < len && i < 3; i++) {
-							if (i < 2) {
-								arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-							}
-							else {
-								// @todo Calc radius
-							}
-						}
-					}
-					else if (shape === 'poly') {
-						for (i = 0; i < len; i++) {
-							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-						}
-					}
-					else if (shape === 'rect') {
-						for (i = 0; i < len && i < 4; i++) {
-							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-						}
-					}
-
-					map.areas[index].$coords = arr;
-				});
+			if (!map.relCoords) {
+				return map;
 			}
+
+			var width = $scope.width();
+			var height = $scope.height();
+
+			if (!width || !height) {
+				return map;
+			}
+
+			_.forEach(map.areas, function (area, index) {
+				var shape = area.shape.toLowerCase();
+				var coords = area.coords;
+				var i;
+				var len = coords.length;
+				var arr = new Array(len);
+
+				if (shape === 'circle') {
+					for (i = 0; i < len && i < 3; i++) {
+						if (i < 2) {
+							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
+						}
+						else {
+							// @todo Calc radius
+						}
+					}
+				}
+				else if (shape === 'poly') {
+					for (i = 0; i < len; i++) {
+						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
+					}
+				}
+				else if (shape === 'rect') {
+					for (i = 0; i < len && i < 4; i++) {
+						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
+					}
+				}
+
+				map.areas[index].$coords = arr;
+			});
 
 			return map;
 		}

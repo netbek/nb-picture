@@ -1,5 +1,5 @@
 /**
- * AngularJS directive for responsive images and image maps
+ * AngularJS responsive image map with custom overlays
  *
  * @author Hein Bekker <hein@netbek.co.za>
  * @copyright (c) 2015 Hein Bekker
@@ -11,25 +11,19 @@
 
 	angular
 		.module('nb.picture')
-		.directive('nbPictureMapOnce', nbPictureMapOnceDirective);
+		.directive('widgetMapOverlayCanvas', widgetMapOverlayCanvasDirective);
 
-	function nbPictureMapOnceDirective () {
+	function widgetMapOverlayCanvasDirective () {
 		return {
 			restrict: 'EA',
 			replace: true,
-			transclude: true,
-			controller: 'nbPictureMapController',
-			templateUrl: 'templates/nb-picture-map-once.html',
+			scope: true,
+			controller: 'widgetMapOverlayCanvasController',
+			templateUrl: '../demo/templates/map/widget-map-overlay-canvas.html?_=' + Date.now(),
 			link: function (scope, element, attrs, controller) {
 				controller.init();
 
-				var watch = scope.$watch(controller.attrs, function (newValue, oldValue, scope) {
-					controller.update(newValue);
-					watch();
-				}, true);
-
 				scope.$on('$destroy', function () {
-					watch();
 					controller.destroy();
 				});
 			}

@@ -28,6 +28,7 @@
     "picturefill": "2.2.0"
   },
   "devDependencies": {
-    "ng-stats": "~2.0.4"
+    "ng-stats": "~2.0.4",
+	"nb-icon": "https://github.com/netbek/nb-icon.git#master"
   }
 }

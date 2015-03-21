@@ -5,12 +5,3 @@
  * @copyright (c) 2015 Hein Bekker
  * @license http://www.gnu.org/licenses/agpl-3.0.txt AGPLv3
  */
-
-.picture-map {
-	width: 100%;
-}
-
-.picture-map picture img {
-	width: 100%;
-	height: auto;
-}

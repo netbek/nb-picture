@@ -13,8 +13,8 @@
 		.module('nb.picture')
 		.filter('join', function () {
 			return function (input, delimiter) {
-				if (_.isArray(input)) {
-					return input.join(!_.isUndefined(delimiter) ? delimiter : ',');
+				if (angular.isArray(input)) {
+					return input.join(angular.isDefined(delimiter) ? delimiter : ',');
 				}
 				return '';
 			};
