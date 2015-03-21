@@ -59,7 +59,7 @@
 				<span nb-picture-map-overlay-areas></span>
 			</span>
 		</div>
-<!--
+
 		<div child-scope id="scope2">
 			<div angular-stats
 				 watch-count-root="#scope2"
@@ -70,8 +70,12 @@
 			<span nb-picture-map-once
 				  ng-attr-map="{{::widget.map}}"
 				  ng-attr-default-source="{{::(widget.styles.small + ', ' + widget.styles.medium + ' 2x')}}"
-				  ng-attr-sources="{{::('[[\'' + widget.styles.medium + ', ' + widget.styles.large + ' 2x\', \'medium\'], [\'' + widget.styles.large + ', ' + widget.styles.xlarge + ' 2x\', \'large\']]')}}"></span>
+				ng-attr-sources="{{::('[[\'' + widget.styles.medium + ', ' + widget.styles.large + ' 2x\', \'medium\'], [\'' + widget.styles.large + ', ' + widget.styles.xlarge + ' 2x\', \'large\']]')}}">
+				<span widget-map-overlay-canvas></span>
+				<span widget-map-overlay-markers></span>
+				<span nb-picture-map-overlay-areas></span>
+			</span>
 		</div>
--->
+
 	</body>
 </html>
