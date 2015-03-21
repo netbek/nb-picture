@@ -989,7 +989,7 @@
 				var watch = scope.$watch(function () {
 					return {
 						alt: scope.picture & scope.picture.img ? scope.picture.img.alt : '',
-						usemap: scope.map ? scope.map.name : ''
+						usemap: scope.map && scope.map.name ? '#' + scope.map.name : ''
 					};
 				}, function (newValue, oldValue, scope) {
 					angular.forEach(newValue, function (value, key) {
