@@ -64,7 +64,7 @@
 					markers: {
 						alwaysOn: true,
 						icon: {
-							id: '0073-location2'
+							id: 'marker'
 						}
 					}
 				}

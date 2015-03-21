@@ -101,8 +101,7 @@ module.exports = function (grunt) {
 			dist: {
 				options: {
 					colors: {
-						black: '#000',
-						blue: '#0000FF'
+						black: '#000'
 					}
 				},
 				files: [{cwd: 'demo/svg/icon/', src: ['*.svg'], dest: 'demo/img/'}]
