@@ -14,5 +14,11 @@
 			'nb.i18n',
 			'nb.lodash',
 			'nb.picture.templates'
-		]);
+		])
+		.constant('PICTURE_POSITION', {
+			'LEFT_TOP': 'left top',
+			'LEFT_BOTTOM': 'left bottom',
+			'RIGHT_TOP': 'right top',
+			'RIGHT_BOTTOM': 'right bottom'
+		});
 })(window, window.angular);

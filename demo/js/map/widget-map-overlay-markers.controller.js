@@ -13,8 +13,8 @@
 		.module('widget')
 		.controller('widgetMapOverlayMarkersController', widgetMapOverlayMarkersController);
 
-	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils'];
-	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, utils) {
+	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureUtils', 'nbPictureMapOverlayUtils'];
+	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, nbPictureUtils, utils) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
@@ -49,7 +49,7 @@
 							y = area.$coords[1];
 						}
 						else if (area.shape === 'poly' || area.shape === 'rect') {
-							var center = getPolyCenter(area.$coords, true);
+							var center = nbPictureUtils.getCenter(area.$coords, true);
 							x = center[0];
 							y = center[1];
 						}
@@ -97,57 +97,5 @@
 				fn();
 			});
 		};
-
-		/**
-		 * Calculates the center of a polygon's bounds.
-		 *
-		 * @param {Array} coords
-		 * @param {Boolean} round
-		 * @returns {Array}
-		 */
-		function getPolyCenter (coords, round) {
-			var xMin = 0, yMin = 0, xMax = 0, yMax = 0, coord;
-
-			for (var i = 0, il = coords.length; i < il; i++) {
-				coord = coords[i];
-
-				if (i % 2 === 0) {
-					if (i === 0) {
-						xMin = coord;
-					}
-					else {
-						if (coord < xMin) {
-							xMin = coord;
-						}
-						if (coord > xMax) {
-							xMax = coord;
-						}
-					}
-				}
-				else {
-					if (i === 1) {
-						yMin = coord;
-					}
-					else {
-						if (coord < yMin) {
-							yMin = coord;
-						}
-						if (coord > yMax) {
-							yMax = coord;
-						}
-					}
-				}
-			}
-
-			var x = (xMin + xMax) / 2;
-			var y = (yMin + yMax) / 2;
-
-			if (round) {
-				x = Math.round(x);
-				y = Math.round(y);
-			}
-
-			return [x, y];
-		}
 	}
 })(window, window.angular);

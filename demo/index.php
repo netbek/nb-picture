@@ -21,6 +21,7 @@
 		<script src="../src/js/nb-picture.module.js"></script>
 		<script src="../src/js/nb-picture.filters.js"></script>
 		<script src="../src/js/nb-picture-config.service.js"></script>
+		<script src="../src/js/nb-picture-utils.service.js"></script>
 		<script src="../src/js/nb-picture.controller.js"></script>
 		<script src="../src/js/nb-picture.directive.js"></script>
 		<script src="../src/js/nb-picture-once.directive.js"></script>
