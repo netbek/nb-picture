@@ -20,5 +20,10 @@
 			'LEFT_BOTTOM': 'left bottom',
 			'RIGHT_TOP': 'right top',
 			'RIGHT_BOTTOM': 'right bottom'
+		})
+		.constant('PICTURE_SHAPE', {
+			'CIRCLE': 'circle',
+			'POLYGON': 'poly',
+			'RECTANGLE': 'rect'
 		});
 })(window, window.angular);

@@ -13,8 +13,8 @@
 		.module('widget')
 		.controller('widgetMapOverlayCanvasController', widgetMapOverlayCanvasController);
 
-	widgetMapOverlayCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils'];
-	function widgetMapOverlayCanvasController ($scope, $element, $attrs, $timeout, _, utils) {
+	widgetMapOverlayCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils', 'PICTURE_SHAPE'];
+	function widgetMapOverlayCanvasController ($scope, $element, $attrs, $timeout, _, utils, PICTURE_SHAPE) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
@@ -127,7 +127,7 @@
 				var shape = area.shape;
 				var coords = area.$coords;
 
-				if (shape === 'circle') {
+				if (shape === PICTURE_SHAPE.CIRCLE) {
 					ctx.beginPath();
 					ctx.arc(coords[0], coords[1], coords[2], 0, Math.PI * 2, true);
 					ctx.closePath();
@@ -136,7 +136,7 @@
 						ctx.fill();
 					}
 				}
-				else if (shape === 'poly') {
+				else if (shape === PICTURE_SHAPE.POLYGON) {
 					ctx.beginPath();
 
 					for (var i = 0, il = coords.length; i < il; i += 2) {
@@ -154,7 +154,7 @@
 						ctx.fill();
 					}
 				}
-				else if (shape === 'rect') {
+				else if (shape === PICTURE_SHAPE.RECTANGLE) {
 					var x = coords[0];
 					var y = coords[1];
 					var width = coords[2] - coords[0];

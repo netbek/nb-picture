@@ -13,8 +13,8 @@
 		.module('nb.picture')
 		.factory('nbPictureUtils', nbPictureUtils);
 
-	nbPictureUtils.$inject = ['PICTURE_POSITION'];
-	function nbPictureUtils (PICTURE_POSITION) {
+	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE'];
+	function nbPictureUtils (PICTURE_POSITION, PICTURE_SHAPE) {
 		var utils = {};
 
 		/**
@@ -49,48 +49,108 @@
 		};
 
 		/**
-		 * Calculates the center of a polygon's bounds.
+		 * Checks if a shape contains a point.
 		 *
+		 * @param {String} shape
 		 * @param {Array} coords
-		 * @param {Boolean} round Whether to round the returned values.
-		 * @returns {Array} [x, y]
+		 * @param {Array} point
+		 * @returns {Boolean}
 		 */
-		utils.getCenter = function (coords, round) {
-			var xMin = 0, yMin = 0, xMax = 0, yMax = 0, coord;
+		utils.contains = function (shape, coords, point) {
+			var x = point[0];
+			var y = point[1];
 
-			for (var i = 0, il = coords.length; i < il; i++) {
-				coord = coords[i];
+			if (shape === PICTURE_SHAPE.CIRCLE) {
+				var cx = coords[0];
+				var cy = coords[1];
+				var radius = coords[2];
+				var distanceSquared = (x - cx) * (x - cx) + (y - cy) * (y - cy);
 
-				if (i % 2 === 0) {
-					if (i === 0) {
-						xMin = coord;
+				return distanceSquared <= radius * radius;
+			}
+			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
+				var bounds = utils.getBounds(shape, coords);
+
+				return x >= bounds[0] && x <= bounds[2] && y >= bounds[1] && y <= bounds[3];
+			}
+
+			return false;
+		};
+
+		/**
+		 * Calculates the bounds of a shape.
+		 *
+		 * @param {String} shape
+		 * @param {Array} coords
+		 * @returns {Array}
+		 */
+		utils.getBounds = function (shape, coords) {
+			var x1 = 0, y1 = 0, x2 = 0, y2 = 0;
+
+			if (shape === PICTURE_SHAPE.CIRCLE) {
+				x1 = coords[0] - coords[2];
+				y1 = coords[1] - coords[2];
+				x2 = coords[0] + coords[2];
+				y2 = coords[1] + coords[2];
+			}
+			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
+				var coord, i, il;
+
+				for (i = 0, il = coords.length; i < il; i++) {
+					coord = coords[i];
+
+					if (i % 2 === 0) {
+						if (i === 0) {
+							x1 = coord;
+						}
+						else {
+							if (coord < x1) {
+								x1 = coord;
+							}
+							if (coord > x2) {
+								x2 = coord;
+							}
+						}
 					}
 					else {
-						if (coord < xMin) {
-							xMin = coord;
+						if (i === 1) {
+							y1 = coord;
 						}
-						if (coord > xMax) {
-							xMax = coord;
-						}
-					}
-				}
-				else {
-					if (i === 1) {
-						yMin = coord;
-					}
-					else {
-						if (coord < yMin) {
-							yMin = coord;
-						}
-						if (coord > yMax) {
-							yMax = coord;
+						else {
+							if (coord < y1) {
+								y1 = coord;
+							}
+							if (coord > y2) {
+								y2 = coord;
+							}
 						}
 					}
 				}
 			}
 
-			var x = (xMin + xMax) / 2;
-			var y = (yMin + yMax) / 2;
+			return [x1, y1, x2, y2];
+		};
+
+		/**
+		 * Calculates the center of a shape's bounds.
+		 *
+		 * @param {String} shape
+		 * @param {Array} coords
+		 * @param {Boolean} round Whether to round the returned values.
+		 * @returns {Array}
+		 */
+		utils.getCenter = function (shape, coords, round) {
+			var x = 0, y = 0;
+
+			if (shape === PICTURE_SHAPE.CIRCLE) {
+				x = coords[0];
+				y = coords[1];
+			}
+			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
+				var bounds = utils.getBounds(shape, coords);
+				x = (bounds[0] + bounds[2]) / 2;
+				y = (bounds[1] + bounds[3]) / 2;
+			}
 
 			if (round) {
 				x = Math.round(x);

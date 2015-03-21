@@ -13,8 +13,8 @@
 		.module('widget')
 		.controller('widgetMapOverlayMarkersController', widgetMapOverlayMarkersController);
 
-	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureUtils', 'nbPictureMapOverlayUtils'];
-	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, nbPictureUtils, utils) {
+	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureUtils', 'nbPictureMapOverlayUtils', 'PICTURE_SHAPE'];
+	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, nbPictureUtils, utils, PICTURE_SHAPE) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
@@ -42,21 +42,10 @@
 				if (result.dirty) {
 					// Calc marker position.
 					_.forEach(result.newValue, function (area, index) {
-						var x = 0, y = 0;
-
-						if (area.shape === 'circle') {
-							x = area.$coords[0];
-							y = area.$coords[1];
-						}
-						else if (area.shape === 'poly' || area.shape === 'rect') {
-							var center = nbPictureUtils.getCenter(area.$coords, true);
-							x = center[0];
-							y = center[1];
-						}
-
+						var center = nbPictureUtils.getCenter(area.shape, area.$coords, true);
 						result.newValue[index].style = {
-							top: y + 'px',
-							left: x + 'px'
+							top: center[1] + 'px',
+							left: center[0] + 'px'
 						};
 					});
 

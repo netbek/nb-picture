@@ -15,8 +15,8 @@
 
 	var uniqid = 0;
 
-	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_'];
-	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _) {
+	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_', 'PICTURE_SHAPE'];
+	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _, PICTURE_SHAPE) {
 		/*jshint validthis: true */
 		var flags = {
 			init: false, // {Boolean} Whether init() has been fired.
@@ -392,7 +392,7 @@
 				var len = coords.length;
 				var arr = new Array(len);
 
-				if (shape === 'circle') {
+				if (shape === PICTURE_SHAPE.CIRCLE) {
 					for (i = 0; i < len && i < 3; i++) {
 						if (i < 2) {
 							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
@@ -402,12 +402,12 @@
 						}
 					}
 				}
-				else if (shape === 'poly') {
+				else if (shape === PICTURE_SHAPE.POLYGON) {
 					for (i = 0; i < len; i++) {
 						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
 					}
 				}
-				else if (shape === 'rect') {
+				else if (shape === PICTURE_SHAPE.RECTANGLE) {
 					for (i = 0; i < len && i < 4; i++) {
 						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
 					}
