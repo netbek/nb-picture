@@ -516,7 +516,7 @@
 			$coords: [], // {Array} Internal. Array of absolute coordinates.
 			shape: undefined, // {String} circle, rect, poly
 			coords: [], // {Array} Array of relative (percentage) or absolute coordinates.
-			href: undefined, // {String}
+			href: '#', // {String}
 			alt: '', // {String}
 			title: '', // {String}
 			data: undefined // {Object} Custom data object.
@@ -538,6 +538,17 @@
 		 * @param {Event} event
 		 */
 		$scope.clickArea = function (event) {
+			var locationHref = window.location.href;
+			var aHref = event.target.href;
+
+			if (aHref.indexOf(locationHref) === 0) {
+				aHref = aHref.slice(locationHref.length);
+			}
+
+			if (aHref === defaultArea.href) {
+				event.preventDefault();
+			}
+
 			$scope.$broadcast('nbPicture:clickArea', event);
 		};
 

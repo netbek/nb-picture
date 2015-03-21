@@ -11,7 +11,7 @@
 	position: relative;
 }
 
-.picture picture {
+.picture > picture {
 	position: relative;
 	z-index: 0;
 }
@@ -39,6 +39,11 @@
 	display: block;
 	width: 100%;
 	height: 100%;
+}
+
+.picture-map > picture img,
+.picture-map-overlay-areas img {
+	border: none;
 }
 
 .picture-map area {
