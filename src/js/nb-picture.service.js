@@ -159,10 +159,7 @@
 				map.name = map.name || 'nb-picture-map-' + (++uniqid);
 
 				_.forEach(map.areas, function (area, index) {
-					map.areas[index] = _.extend({}, defaultMapArea, area, {
-						$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
-						$coords: area.coords
-					});
+					map.areas[index] = buildMapArea(area);
 				});
 
 				// Build overlay configs.
@@ -271,16 +268,39 @@
 		 * @returns {Object|undefined}
 		 */
 		this.getMapArea = function (pictureId, areaId) {
+			var map = self.getMap(pictureId);
 
+			if (map) {
+				return _.find(map.areas, {$id: areaId});
+			}
 		};
 
 		/**
 		 *
 		 * @param {String} pictureId
 		 * @param {Object} area
+		 * @returns {Boolean} Whether the map areas have been changed.
 		 */
 		this.setMapArea = function (pictureId, area) {
+			var dirty = false;
+			var map = self.getMap(pictureId);
 
+			if (map) {
+				if (area.$id) {
+					var index = _.findIndex(map.areas, {$id: area.$id});
+
+					if (index > -1) {
+						dirty = true;
+						map.areas[index] = area;
+					}
+				}
+				else {
+					dirty = true;
+					map.areas.push(buildMapArea(area));
+				}
+			}
+
+			return dirty;
 		};
 
 		/**
@@ -596,6 +616,18 @@
 
 			return dirty;
 		};
+
+		/**
+		 *
+		 * @param {Object} area
+		 * @returns {Object}
+		 */
+		function buildMapArea (area) {
+			return _.extend({}, defaultMapArea, area, {
+				$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
+				$coords: area.coords
+			});
+		}
 
 		/**
 		 * Toggles the given highlights.
