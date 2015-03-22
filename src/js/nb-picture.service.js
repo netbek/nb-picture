@@ -324,11 +324,15 @@
 		 * @param {String} pictureId
 		 * @param {String} overlayId
 		 * @param {Array} areas
+		 * @returns {Boolean} Whether the overlay areas have been changed.
 		 */
 		this.setMapOverlayAreas = function (pictureId, overlayId, areas) {
+			var dirty = false;
 			var overlay = self.getMapOverlay(pictureId, overlayId);
 
 			if (overlay) {
+				dirty = true;
+
 				if (areas && areas.length) {
 					overlay.$areas = areas;
 				}
@@ -336,6 +340,8 @@
 					overlay.$areas = [];
 				}
 			}
+
+			return dirty;
 		};
 
 		/**
