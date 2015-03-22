@@ -49,54 +49,54 @@
 
 			// If the base image has already been loaded, then set the initial highlights.
 			if ($scope.complete) {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onBaseLoad(config, areas, highs));
+				fn(utils.onBaseLoad(overlay, areas, highs));
 			}
 
 			deregister.push($scope.$on('nbPicture:baseLoad', function () {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onBaseLoad(config, areas, highs));
+				fn(utils.onBaseLoad(overlay, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:baseError', function () {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onBaseError(config, areas, highs));
+				fn(utils.onBaseError(overlay, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:resize', function () {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onResize(config, areas, highs));
+				fn(utils.onResize(overlay, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onClickArea(config, areas, highs, event));
+				fn(utils.onClickArea(overlay, areas, highs, event));
 			}));
 			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onFocusArea(config, areas, highs, event, blur));
+				fn(utils.onFocusArea(overlay, areas, highs, event, blur));
 			}));
 			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
-				var config = $scope.map.overlays[overlayId];
 				var pictureId = $scope.picture.$id;
+				var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 				var areas = nbPictureService.getMapAreas(pictureId);
 				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
-				fn(utils.onHoverArea(config, areas, highs, event, blur));
+				fn(utils.onHoverArea(overlay, areas, highs, event, blur));
 			}));
 		};
 
