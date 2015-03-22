@@ -287,15 +287,17 @@
 		 *
 		 * @param {String} pictureId
 		 * @param {String} areaId
-		 * @returns {Boolean}
+		 * @returns {Boolean} Whether the map or overlay areas have been changed.
 		 */
 		this.deleteMapArea = function (pictureId, areaId) {
+			var dirty = false;
 			var map = self.getMap(pictureId);
 
 			if (map) {
 				var index = _.findIndex(map.areas, {$id: areaId});
 
 				if (index > -1) {
+					dirty = true;
 					map.areas.splice(index, 1);
 				}
 
@@ -304,10 +306,13 @@
 					var index = _.findIndex(areas, {$id: areaId});
 
 					if (index > -1) {
+						dirty = true;
 						areas.splice(index, 1);
 					}
 				});
 			}
+
+			return dirty;
 		};
 
 		/**
