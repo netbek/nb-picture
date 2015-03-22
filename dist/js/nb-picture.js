@@ -173,6 +173,22 @@
 		};
 
 		/**
+		 * Calculates the width and height of the bounds of a shape.
+		 *
+		 * @param {String} shape
+		 * @param {Array} coords
+		 * @returns {Object}
+		 */
+		utils.getSize = function (shape, coords) {
+			var bounds = utils.getBounds(shape, coords);
+
+			return {
+				width: bounds[2] - bounds[0],
+				height: bounds[3] - bounds[1]
+			};
+		};
+
+		/**
 		 * Calculates the bounds of a shape.
 		 *
 		 * @param {String} shape
