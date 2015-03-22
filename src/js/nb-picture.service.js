@@ -15,8 +15,8 @@
 
 	var uniqid = 0;
 
-	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig'];
-	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig) {
+	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig', 'nbPictureUtils'];
+	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig, nbPictureUtils) {
 		/* jshint validthis: true */
 		var self = this;
 		var flags = {};
@@ -200,51 +200,7 @@
 			}
 
 			_.forEach(map.areas, function (area, index) {
-				var shape = area.shape;
-				var coords = area.coords;
-				var i;
-				var len = coords.length;
-				var arr = new Array(len);
-				var val;
-
-				if (shape === PICTURE_SHAPE.CIRCLE) {
-					for (i = 0; i < len && i < 3; i++) {
-						if (i < 2) {
-							val = coords[i] * (i % 2 === 0 ? width : height);
-							if (round) {
-								val = Math.round(val);
-							}
-							arr[i] = val;
-						}
-						else {
-							val = coords[i] * Math.min(width, height);
-							if (round) {
-								val = Math.round(val);
-							}
-							arr[i] = val;
-						}
-					}
-				}
-				else if (shape === PICTURE_SHAPE.POLYGON) {
-					for (i = 0; i < len; i++) {
-						val = coords[i] * (i % 2 === 0 ? width : height);
-						if (round) {
-							val = Math.round(val);
-						}
-						arr[i] = val;
-					}
-				}
-				else if (shape === PICTURE_SHAPE.RECTANGLE) {
-					for (i = 0; i < len && i < 4; i++) {
-						val = coords[i] * (i % 2 === 0 ? width : height);
-						if (round) {
-							val = Math.round(val);
-						}
-						arr[i] = val;
-					}
-				}
-
-				map.areas[index].$coords = arr;
+				map.areas[index].$coords = nbPictureUtils.relToAbsCoords(area.shape, area.coords, width, height, round);
 			});
 		};
 
