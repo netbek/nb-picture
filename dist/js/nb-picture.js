@@ -108,8 +108,8 @@
 		.module('nb.picture')
 		.factory('nbPictureUtils', nbPictureUtils);
 
-	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE'];
-	function nbPictureUtils (PICTURE_POSITION, PICTURE_SHAPE) {
+	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
+	function nbPictureUtils (PICTURE_POSITION, PICTURE_SHAPE, _) {
 		var utils = {};
 
 		/**
@@ -205,38 +205,21 @@
 				y2 = coords[1] + coords[2];
 			}
 			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
-				var coord, i, il;
+				var x = [], y = [];
 
-				for (i = 0, il = coords.length; i < il; i++) {
-					coord = coords[i];
-
+				_.forEach(coords, function (value, i) {
 					if (i % 2 === 0) {
-						if (i === 0) {
-							x1 = coord;
-						}
-						else {
-							if (coord < x1) {
-								x1 = coord;
-							}
-							if (coord > x2) {
-								x2 = coord;
-							}
-						}
+						x.push(value);
 					}
 					else {
-						if (i === 1) {
-							y1 = coord;
-						}
-						else {
-							if (coord < y1) {
-								y1 = coord;
-							}
-							if (coord > y2) {
-								y2 = coord;
-							}
-						}
+						y.push(value);
 					}
-				}
+				});
+
+				x1 = _.min(x);
+				y1 = _.min(y);
+				x2 = _.max(x);
+				y2 = _.max(y);
 			}
 
 			return [x1, y1, x2, y2];
