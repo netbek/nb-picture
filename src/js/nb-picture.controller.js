@@ -13,9 +13,10 @@
 		.module('nb.picture')
 		.controller('nbPictureController', nbPictureController);
 
-	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_'];
-	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _) {
+	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_', 'nbPictureService'];
+	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _, nbPictureService) {
 		/*jshint validthis: true */
+		var pictureId;
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
 		};
@@ -66,6 +67,8 @@
 
 			flags.init = true;
 
+			pictureId = nbPictureService.initPicture();
+
 			$img = $element.find('img');
 			img = $img[0];
 		};
@@ -81,6 +84,8 @@
 			if ($img) {
 				removeImgEventListeners();
 			}
+
+			nbPictureService.destroyPicture(pictureId);
 		};
 
 		/**
@@ -93,8 +98,13 @@
 				return;
 			}
 
-			// Cancel timeouts and remove event handlers.
-			this.destroy();
+			_.forEach(timeouts, function (fn) {
+				$timeout.cancel(fn);
+			});
+
+			if ($img) {
+				removeImgEventListeners();
+			}
 
 			// Reset state.
 			$scope.complete = false;
@@ -102,48 +112,11 @@
 			// Add image event handlers.
 			addImgEventListeners();
 
-			// Ensure `alt` attribute is always present.
-			if (_.isUndefined(options.alt)) {
-				options.alt = '';
-			}
-
-			var picture = {
-				sources: [],
-				img: {}
-			};
-
-			var sources = $scope.$eval(options.sources);
-			if (!_.isArray(sources)) {
-				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
-			}
-
-			// Add the sources from large to small.
-			for (var il = sources.length, i = il - 1; i >= 0; i--) {
-				var source = sources[i];
-				var media;
-
-				if (!_.isUndefined(source[1]) && source[1] in nbPictureConfig.mediaqueries) {
-					media = nbPictureConfig.mediaqueries[source[1]];
-				}
-
-				picture.sources.push({
-					srcset: source[0],
-					media: media
-				});
-			}
-
-			// Add the default image.
-			picture.sources.push({
-				srcset: options.defaultSource
-			});
-
-			picture.img = {
-				srcset: options.defaultSource,
-				alt: options.alt
-			};
+			options.sources = $scope.$eval(options.sources);
+			nbPictureService.setPicture(pictureId, options);
 
 			// Assign data to scope.
-			$scope.picture = picture;
+			$scope.picture = nbPictureService.getPicture(pictureId);
 
 			timeouts.push($timeout(function () {
 				// Run picture polyfill.

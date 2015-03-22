@@ -69,7 +69,7 @@
 		 * @param {Array} areas
 		 * @param {Array} oldValue
 		 * @returns {Object}
-		 * @see nbPictureMapController.calcMapCoords()
+		 * @see nbPictureService.resizeMap()
 		 */
 		utils.onResize = function (overlayConfig, areas, oldValue) {
 			var dirty = false, newValue = oldValue;

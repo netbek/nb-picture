@@ -39,4 +39,6 @@ See `/demo/map.php` for an example with highlighted areas and SVG markers.
 
 ## Credits
 
-* Demo icons by [IcoMoon](https://icomoon.io) (CC BY 4.0 or GPL)
+* Image of [Diphyllodes chrysoptera](http://commons.wikimedia.org/wiki/File:!Diphyllodes_chrysoptera!.jpg) by [Daniel Giraud Elliot](https://en.wikipedia.org/wiki/Daniel_Giraud_Elliot) (public domain)
+* Image of [Diphyllodes speciosa](http://commons.wikimedia.org/wiki/File:!Diphyllodes_speciosa!.jpg) by [Daniel Giraud Elliot](https://en.wikipedia.org/wiki/Daniel_Giraud_Elliot) (public domain)
+* Icons by [IcoMoon](https://icomoon.io) (CC BY 4.0 or GPL)

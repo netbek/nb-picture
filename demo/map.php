@@ -16,12 +16,13 @@
 		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
 		<script src="../bower_components/nb-lodash/dist/js/nb-lodash.js"></script>
 		<script src="../bower_components/nb-icon/dist/js/nb-icon.js"></script>
-
-		<script src="../dist/js/nb-picture.js"></script>
 <!--
+		<script src="../dist/js/nb-picture.js"></script>
+-->
 		<script src="../src/js/nb-picture.module.js"></script>
 		<script src="../src/js/nb-picture.filters.js"></script>
 		<script src="../src/js/nb-picture-config.service.js"></script>
+		<script src="../src/js/nb-picture.service.js"></script>
 		<script src="../src/js/nb-picture-utils.service.js"></script>
 		<script src="../src/js/nb-picture.controller.js"></script>
 		<script src="../src/js/nb-picture.directive.js"></script>
@@ -33,7 +34,7 @@
 		<script src="../src/js/nb-picture-map-overlay-utils.service.js"></script>
 		<script src="../src/js/nb-picture-templates.js"></script>
 		<script src="../src/js/picturefill.service.js"></script>
--->
+
 		<script src="js/map/widget.module.js"></script>
 		<script src="js/map/widget-main.controller.js"></script>
 		<script src="js/map/widget-map-overlay-canvas.controller.js"></script>
@@ -52,9 +53,9 @@
 				Normal binding. Number of watches: <span class="watch-count"></span>
 			</div>
 			<span nb-picture-map
-				  ng-attr-map="{{widget.map}}"
-				  ng-attr-default-source="{{widget.styles.small + ', ' + widget.styles.medium + ' 2x'}}"
-				  ng-attr-sources="{{'[[\'' + widget.styles.medium + ', ' + widget.styles.large + ' 2x\', \'medium\'], [\'' + widget.styles.large + ', ' + widget.styles.xlarge + ' 2x\', \'large\']]'}}">
+				  ng-attr-map="{{images[0].map}}"
+				  ng-attr-default-source="{{images[0].styles.small + ', ' + images[0].styles.medium + ' 2x'}}"
+				  ng-attr-sources="{{'[[\'' + images[0].styles.medium + ', ' + images[0].styles.large + ' 2x\', \'medium\'], [\'' + images[0].styles.large + ', ' + images[0].styles.xlarge + ' 2x\', \'large\']]'}}">
 				<span widget-map-overlay-canvas></span>
 				<span widget-map-overlay-markers></span>
 				<span nb-picture-map-overlay-areas></span>
@@ -69,9 +70,9 @@
 				One-time binding. Number of watches: <span class="watch-count"></span>
 			</div>
 			<span nb-picture-map-once
-				  ng-attr-map="{{::widget.map}}"
-				  ng-attr-default-source="{{::(widget.styles.small + ', ' + widget.styles.medium + ' 2x')}}"
-				ng-attr-sources="{{::('[[\'' + widget.styles.medium + ', ' + widget.styles.large + ' 2x\', \'medium\'], [\'' + widget.styles.large + ', ' + widget.styles.xlarge + ' 2x\', \'large\']]')}}">
+				  ng-attr-map="{{::images[1].map}}"
+				  ng-attr-default-source="{{::(images[1].styles.small + ', ' + images[1].styles.medium + ' 2x')}}"
+				  ng-attr-sources="{{::('[[\'' + images[1].styles.medium + ', ' + images[1].styles.large + ' 2x\', \'medium\'], [\'' + images[1].styles.large + ', ' + images[1].styles.xlarge + ' 2x\', \'large\']]')}}">
 				<span widget-map-overlay-canvas></span>
 				<span widget-map-overlay-markers></span>
 				<span nb-picture-map-overlay-areas></span>

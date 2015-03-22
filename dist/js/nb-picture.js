@@ -106,6 +106,366 @@
 
 	angular
 		.module('nb.picture')
+		.service('nbPictureService', nbPictureService);
+
+	var uniqid = 0;
+
+	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig'];
+	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig) {
+		/* jshint validthis: true */
+		var self = this;
+		var flags = {};
+		var defaultMap = {
+			$show: false, // {Boolean} Internal. Whether to show the map.
+			name: undefined, // {String} `name` attribute of map DOM element.
+			areas: [], // {Array} Array of map areas. See `defaultArea`.
+			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
+			relCoords: false, // {Boolean} Whether the map has relative (percentage) coordinates.
+			overlays: {} // {Object} Overlay configs keyed by ID.
+		};
+		var defaultMapArea = {
+			$id: undefined, // {String} Internal. Unique ID.
+			$coords: [], // {Array} Internal. Array of absolute coordinates.
+			shape: undefined, // {String} circle, rect, poly
+			coords: [], // {Array} Array of relative (percentage) or absolute coordinates.
+			href: '#', // {String}
+			alt: '', // {String}
+			title: '', // {String}
+			data: undefined // {Object} Custom data object.
+		};
+		var defaultMapOverlay = {
+			$areas: [], // {Array} Internal. Highlighted map areas.
+			alwaysOn: false, // {Boolean} Whether to always show the highlighted map areas.
+			click: false, // {Boolean} Whether to show or hide highlights on click.
+			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
+			hover: false, // {Boolean} Whether to show or hide highlights on mouse enter or leave.
+			single: false // {Boolean} Whether to highlight only one map area at the same time.
+		};
+		var pictures = {};
+
+		/**
+		 *
+		 * @returns {String}
+		 */
+		this.initPicture = function () {
+			var id = 'nb-picture-' + (++uniqid);
+
+			pictures[id] = {
+				$id: id
+			};
+
+			return id;
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 */
+		this.destroyPicture = function (pictureId) {
+			pictures = _.omit(pictures, pictureId);
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @returns {Object}
+		 */
+		this.getPicture = function (pictureId) {
+			return pictures[pictureId];
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {Object} args
+		 */
+		this.setPicture = function (pictureId, args) {
+			if (!_.isArray(args.sources)) {
+				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
+			}
+
+			// Ensure `alt` attribute is always present.
+			if (_.isUndefined(args.alt)) {
+				args.alt = '';
+			}
+
+			var sources = [];
+
+			// Add the sources from large to small.
+			for (var il = args.sources.length, i = il - 1; i >= 0; i--) {
+				var source = args.sources[i];
+				var media;
+
+				if (!_.isUndefined(source[1]) && source[1] in nbPictureConfig.mediaqueries) {
+					media = nbPictureConfig.mediaqueries[source[1]];
+				}
+
+				sources.push({
+					srcset: source[0],
+					media: media
+				});
+			}
+
+			// Add the default image.
+			sources.push({
+				srcset: args.defaultSource
+			});
+
+			var map = self.getMap(pictureId);
+
+			pictures[pictureId].sources = sources;
+			pictures[pictureId].img = {
+				srcset: args.defaultSource,
+				alt: args.alt,
+				usemap: map && !map.resize && map.name ? '#' + map.name : ''
+			};
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @returns {Object}
+		 */
+		this.getMap = function (pictureId) {
+			var picture = pictures[pictureId];
+
+			if (picture) {
+				return picture.map;
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {Object} args
+		 */
+		this.setMap = function (pictureId, args) {
+			if (!_.isObject(args.map)) {
+				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'map', '!type': 'Object'}));
+			}
+
+			var picture = self.getPicture(pictureId);
+
+			if (picture) {
+				// Add default values.
+				var map = _.extend({}, defaultMap, args.map);
+
+				// Assign a unique name to the map if none given.
+				map.name = map.name || 'nb-picture-map-' + (++uniqid);
+
+				_.forEach(map.areas, function (area, index) {
+					map.areas[index] = _.extend({}, defaultMapArea, area, {
+						$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
+						$coords: area.coords
+					});
+				});
+
+				// Build overlay configs.
+				var overlays = {};
+				_.forEach(map.overlays, function (overlay, index) {
+					overlay = _.extend({}, defaultMapOverlay, overlay);
+
+					if (flags.touch) {
+						overlay.click = true;
+						overlay.focus = false;
+						overlay.hover = false;
+					}
+
+					// Only add overlays that have events.
+					if (overlay.alwaysOn || overlay.click || overlay.focus || overlay.hover) {
+						overlay.$id = index;
+						overlays[index] = overlay;
+					}
+				});
+				map.overlays = overlays;
+
+				picture.map = map;
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {Number} width
+		 * @param {Number} height
+		 * @param {Boolean} round
+		 */
+		this.resizeMap = function (pictureId, width, height, round) {
+			var map = self.getMap(pictureId);
+
+			if (!map || !map.relCoords || !width || !height) {
+				return;
+			}
+
+			_.forEach(map.areas, function (area, index) {
+				var shape = area.shape;
+				var coords = area.coords;
+				var i;
+				var len = coords.length;
+				var arr = new Array(len);
+				var val;
+
+				if (shape === PICTURE_SHAPE.CIRCLE) {
+					for (i = 0; i < len && i < 3; i++) {
+						if (i < 2) {
+							val = coords[i] * (i % 2 === 0 ? width : height);
+							if (round) {
+								val = Math.round(val);
+							}
+							arr[i] = val;
+						}
+						else {
+							val = coords[i] * Math.min(width, height);
+							if (round) {
+								val = Math.round(val);
+							}
+							arr[i] = val;
+						}
+					}
+				}
+				else if (shape === PICTURE_SHAPE.POLYGON) {
+					for (i = 0; i < len; i++) {
+						val = coords[i] * (i % 2 === 0 ? width : height);
+						if (round) {
+							val = Math.round(val);
+						}
+						arr[i] = val;
+					}
+				}
+				else if (shape === PICTURE_SHAPE.RECTANGLE) {
+					for (i = 0; i < len && i < 4; i++) {
+						val = coords[i] * (i % 2 === 0 ? width : height);
+						if (round) {
+							val = Math.round(val);
+						}
+						arr[i] = val;
+					}
+				}
+
+				map.areas[index].$coords = arr;
+			});
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @returns {Array}
+		 */
+		this.getMapAreas = function (pictureId) {
+			var map = self.getMap(pictureId);
+
+			if (map) {
+				return map.areas;
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} areaId
+		 * @returns {Object|undefined}
+		 */
+		this.getMapArea = function (pictureId, areaId) {
+
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {Object} area
+		 */
+		this.setMapArea = function (pictureId, area) {
+
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} areaId
+		 * @returns {Boolean}
+		 */
+		this.deleteMapArea = function (pictureId, areaId) {
+			var map = self.getMap(pictureId);
+
+			if (map) {
+				var index = _.findIndex(map.areas, {$id: areaId});
+
+				if (index > -1) {
+					map.areas.splice(index, 1);
+				}
+
+				_.forEach(map.overlays, function (overlay, overlayId) {
+					var areas = map.overlays[overlayId].$areas;
+					var index = _.findIndex(areas, {$id: areaId});
+
+					if (index > -1) {
+						areas.splice(index, 1);
+					}
+				});
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Array}
+		 */
+		this.getMapOverlay = function (pictureId, overlayId) {
+			var map = self.getMap(pictureId);
+
+			if (map) {
+				return map.overlays[overlayId];
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Array}
+		 */
+		this.getMapOverlayAreas = function (pictureId, overlayId) {
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				return overlay.$areas;
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {Array} areas
+		 */
+		this.setMapOverlayAreas = function (pictureId, overlayId, areas) {
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				if (areas && areas.length) {
+					overlay.$areas = areas;
+				}
+				else {
+					overlay.$areas = [];
+				}
+			}
+		};
+	}
+})(window, window.angular);
+/**
+ * AngularJS directive for responsive images and image maps
+ *
+ * @author Hein Bekker <hein@netbek.co.za>
+ * @copyright (c) 2015 Hein Bekker
+ * @license http://www.gnu.org/licenses/agpl-3.0.txt AGPLv3
+ */
+
+(function (window, angular, undefined) {
+	'use strict';
+
+	angular
+		.module('nb.picture')
 		.factory('nbPictureUtils', nbPictureUtils);
 
 	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
@@ -272,9 +632,10 @@
 		.module('nb.picture')
 		.controller('nbPictureController', nbPictureController);
 
-	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_'];
-	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _) {
+	nbPictureController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_', 'nbPictureService'];
+	function nbPictureController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _, nbPictureService) {
 		/*jshint validthis: true */
+		var pictureId;
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
 		};
@@ -325,6 +686,8 @@
 
 			flags.init = true;
 
+			pictureId = nbPictureService.initPicture();
+
 			$img = $element.find('img');
 			img = $img[0];
 		};
@@ -340,6 +703,8 @@
 			if ($img) {
 				removeImgEventListeners();
 			}
+
+			nbPictureService.destroyPicture(pictureId);
 		};
 
 		/**
@@ -352,8 +717,13 @@
 				return;
 			}
 
-			// Cancel timeouts and remove event handlers.
-			this.destroy();
+			_.forEach(timeouts, function (fn) {
+				$timeout.cancel(fn);
+			});
+
+			if ($img) {
+				removeImgEventListeners();
+			}
 
 			// Reset state.
 			$scope.complete = false;
@@ -361,48 +731,11 @@
 			// Add image event handlers.
 			addImgEventListeners();
 
-			// Ensure `alt` attribute is always present.
-			if (_.isUndefined(options.alt)) {
-				options.alt = '';
-			}
-
-			var picture = {
-				sources: [],
-				img: {}
-			};
-
-			var sources = $scope.$eval(options.sources);
-			if (!_.isArray(sources)) {
-				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
-			}
-
-			// Add the sources from large to small.
-			for (var il = sources.length, i = il - 1; i >= 0; i--) {
-				var source = sources[i];
-				var media;
-
-				if (!_.isUndefined(source[1]) && source[1] in nbPictureConfig.mediaqueries) {
-					media = nbPictureConfig.mediaqueries[source[1]];
-				}
-
-				picture.sources.push({
-					srcset: source[0],
-					media: media
-				});
-			}
-
-			// Add the default image.
-			picture.sources.push({
-				srcset: options.defaultSource
-			});
-
-			picture.img = {
-				srcset: options.defaultSource,
-				alt: options.alt
-			};
+			options.sources = $scope.$eval(options.sources);
+			nbPictureService.setPicture(pictureId, options);
 
 			// Assign data to scope.
-			$scope.picture = picture;
+			$scope.picture = nbPictureService.getPicture(pictureId);
 
 			timeouts.push($timeout(function () {
 				// Run picture polyfill.
@@ -557,45 +890,19 @@
 		.module('nb.picture')
 		.controller('nbPictureMapController', nbPictureMapController);
 
-	var uniqid = 0;
-
-	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_', 'PICTURE_SHAPE'];
-	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _, PICTURE_SHAPE) {
+	nbPictureMapController.$inject = ['$scope', '$element', '$attrs', '$timeout', 'nbI18N', 'nbPictureConfig', 'picturefill', '_', 'nbPictureService', 'PICTURE_SHAPE'];
+	function nbPictureMapController ($scope, $element, $attrs, $timeout, nbI18N, nbPictureConfig, picturefill, _, nbPictureService, PICTURE_SHAPE) {
 		/*jshint validthis: true */
+		var pictureId;
 		var flags = {
 			init: false, // {Boolean} Whether init() has been fired.
 			touch: false // {Boolean} Whether the device supports touch events.
 		};
 		var timeouts = [];
-		var defaultMap = {
-			$show: false, // {Boolean} Internal. Whether to show the map.
-			name: undefined, // {String} `name` attribute of map DOM element.
-			areas: [], // {Array} Array of map areas. See `defaultArea`.
-			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
-			relCoords: false, // {Boolean} Whether the map has relative (percentage) coordinates.
-			overlays: {} // {Object} Overlay configs keyed by ID.
-		};
-		var defaultArea = {
-			$id: undefined, // {String} Internal. Unique ID.
-			$coords: [], // {Array} Internal. Array of absolute coordinates.
-			shape: undefined, // {String} circle, rect, poly
-			coords: [], // {Array} Array of relative (percentage) or absolute coordinates.
-			href: '#', // {String}
-			alt: '', // {String}
-			title: '', // {String}
-			data: undefined // {Object} Custom data object.
-		};
-		var defaultOverlay = {
-			alwaysOn: false, // {Boolean} Whether to always show the highlighted map areas.
-			click: false, // {Boolean} Whether to show or hide highlights on click.
-			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
-			hover: false, // {Boolean} Whether to show or hide highlights on mouse enter or leave.
-			single: false // {Boolean} Whether to highlight only one map area at the same time.
-		};
 		var $img, img;
 
 		$scope.complete = false; // {Boolean} Whether the image has loaded or failed to load.
-		$scope.map = _.cloneDeep(defaultMap); // {Object}
+//		$scope.map = nbPictureService.getMap(); // {Object}
 
 		/**
 		 *
@@ -609,7 +916,8 @@
 				aHref = aHref.slice(locationHref.length);
 			}
 
-			if (aHref === defaultArea.href) {
+			// If default href, then stop event.
+			if (aHref === '#') {
 				event.preventDefault();
 			}
 
@@ -677,6 +985,8 @@
 
 			flags.init = true;
 
+			pictureId = nbPictureService.initPicture();
+
 			$img = $element.find('img');
 			img = $img[0];
 		};
@@ -694,6 +1004,8 @@
 			if ($img) {
 				removeImgEventListeners();
 			}
+
+			nbPictureService.destroyPicture(pictureId);
 		};
 
 		/**
@@ -706,8 +1018,15 @@
 				return;
 			}
 
-			// Cancel timeouts and remove event handlers.
-			this.destroy();
+			_.forEach(timeouts, function (fn) {
+				$timeout.cancel(fn);
+			});
+
+			removeWindowEventListeners();
+
+			if ($img) {
+				removeImgEventListeners();
+			}
 
 			// Reset state.
 			$scope.complete = false;
@@ -715,87 +1034,15 @@
 			// Add image event handlers.
 			addImgEventListeners();
 
-			// Ensure `alt` attribute is always present.
-			if (_.isUndefined(options.alt)) {
-				options.alt = '';
-			}
+			options.map = $scope.$eval(options.map);
+			nbPictureService.setMap(pictureId, options);
 
-			var map = $scope.$eval(options.map);
-			if (!_.isObject(map)) {
-				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'map', '!type': 'Object'}));
-			}
-
-			// Add default values.
-			map = _.extend({}, defaultMap, map);
-
-			// Assign a unique name to the map if none given.
-			map.name = map.name || 'nb-picture-map-' + (++uniqid);
-
-			_.forEach(map.areas, function (area, index) {
-				map.areas[index] = _.extend({}, defaultArea, area, {
-					$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
-					$coords: area.coords
-				});
-			});
-
-			// Build overlay configs.
-			var overlays = {};
-			_.forEach(map.overlays, function (overlay, index) {
-				overlay = _.extend({}, defaultOverlay, overlay);
-
-				if (flags.touch) {
-					overlay.click = true;
-					overlay.focus = false;
-					overlay.hover = false;
-				}
-
-				// Only add overlays that have events.
-				if (overlay.alwaysOn || overlay.click || overlay.focus || overlay.hover) {
-					overlay.$id = index;
-					overlays[index] = overlay;
-				}
-			});
-			map.overlays = overlays;
-
-			var picture = {
-				sources: [],
-				img: {}
-			};
-
-			var sources = $scope.$eval(options.sources);
-			if (!_.isArray(sources)) {
-				throw new Error(nbI18N.t('Excepted attribute "!attribute" to evaluate to !type', {'!attribute': 'sources', '!type': 'Array'}));
-			}
-
-			// Add the sources from large to small.
-			for (var il = sources.length, i = il - 1; i >= 0; i--) {
-				var source = sources[i];
-				var media;
-
-				if (!_.isUndefined(source[1]) && source[1] in nbPictureConfig.mediaqueries) {
-					media = nbPictureConfig.mediaqueries[source[1]];
-				}
-
-				picture.sources.push({
-					srcset: source[0],
-					media: media
-				});
-			}
-
-			// Add the default image.
-			picture.sources.push({
-				srcset: options.defaultSource
-			});
-
-			picture.img = {
-				srcset: options.defaultSource,
-				alt: options.alt,
-				usemap: !map.resize && map.name ? '#' + map.name : ''
-			};
+			options.sources = $scope.$eval(options.sources);
+			nbPictureService.setPicture(pictureId, options);
 
 			// Assign data to scope.
-			$scope.map = map;
-			$scope.picture = picture;
+			$scope.map = nbPictureService.getMap(pictureId);
+			$scope.picture = nbPictureService.getPicture(pictureId);
 
 			timeouts.push($timeout(function () {
 				// Run picture polyfill.
@@ -846,8 +1093,7 @@
 
 				removeImgEventListeners();
 
-				// Convert map coordinates to absolute values.
-				calcMapCoords($scope.map);
+				nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
 				$scope.$broadcast('nbPicture:baseLoad');
 
@@ -879,8 +1125,7 @@
 		 * @param {Event} event
 		 */
 		function onWindowResize (event) {
-			// Convert map coordinates to absolute values.
-			calcMapCoords($scope.map);
+			nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
 			$scope.$broadcast('nbPicture:resize');
 
@@ -909,58 +1154,6 @@
 			else if (window.detachEvent) {
 				window.detachEvent('onresize', onWindowResize);
 			}
-		}
-
-		/**
-		 * Converts the given map coordinates to absolute values if relative.
-		 *
-		 * @param {Object} map
-		 * @returns {Object}
-		 */
-		function calcMapCoords (map) {
-			if (!map.relCoords) {
-				return map;
-			}
-
-			var width = $scope.width();
-			var height = $scope.height();
-
-			if (!width || !height) {
-				return map;
-			}
-
-			_.forEach(map.areas, function (area, index) {
-				var shape = area.shape.toLowerCase();
-				var coords = area.coords;
-				var i;
-				var len = coords.length;
-				var arr = new Array(len);
-
-				if (shape === PICTURE_SHAPE.CIRCLE) {
-					for (i = 0; i < len && i < 3; i++) {
-						if (i < 2) {
-							arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-						}
-						else {
-							arr[i] = Math.round(coords[i] * Math.min(width, height));
-						}
-					}
-				}
-				else if (shape === PICTURE_SHAPE.POLYGON) {
-					for (i = 0; i < len; i++) {
-						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-					}
-				}
-				else if (shape === PICTURE_SHAPE.RECTANGLE) {
-					for (i = 0; i < len && i < 4; i++) {
-						arr[i] = Math.round(coords[i] * (i % 2 === 0 ? width : height));
-					}
-				}
-
-				map.areas[index].$coords = arr;
-			});
-
-			return map;
 		}
 	}
 })(window, window.angular);
@@ -1150,7 +1343,7 @@
 		 * @param {Array} areas
 		 * @param {Array} oldValue
 		 * @returns {Object}
-		 * @see nbPictureMapController.calcMapCoords()
+		 * @see nbPictureService.resizeMap()
 		 */
 		utils.onResize = function (overlayConfig, areas, oldValue) {
 			var dirty = false, newValue = oldValue;

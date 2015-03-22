@@ -15,12 +15,13 @@
 		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
 		<script src="../bower_components/nb-lodash/dist/js/nb-lodash.js"></script>
 		<script src="../bower_components/nb-icon/dist/js/nb-icon.js"></script>
-
-		<script src="../dist/js/nb-picture.js"></script>
 <!--
+		<script src="../dist/js/nb-picture.js"></script>
+-->
 		<script src="../src/js/nb-picture.module.js"></script>
 		<script src="../src/js/nb-picture.filters.js"></script>
 		<script src="../src/js/nb-picture-config.service.js"></script>
+		<script src="../src/js/nb-picture.service.js"></script>
 		<script src="../src/js/nb-picture-utils.service.js"></script>
 		<script src="../src/js/nb-picture.controller.js"></script>
 		<script src="../src/js/nb-picture.directive.js"></script>
@@ -29,12 +30,10 @@
 		<script src="../src/js/nb-picture-map.directive.js"></script>
 		<script src="../src/js/nb-picture-map-once.directive.js"></script>
 		<script src="../src/js/nb-picture-map-overlay-areas.directive.js"></script>
-		<script src="../src/js/nb-widget-map-overlay-canvas.controller.js"></script>
-		<script src="../src/js/nb-widget-map-overlay-canvas.directive.js"></script>
 		<script src="../src/js/nb-picture-map-overlay-utils.service.js"></script>
-		<script src="../src/js/picturefill.service.js"></script>
 		<script src="../src/js/nb-picture-templates.js"></script>
--->
+		<script src="../src/js/picturefill.service.js"></script>
+
 		<script src="js/app.js"></script>
 	</head>
 	<body ng-controller="mainController">

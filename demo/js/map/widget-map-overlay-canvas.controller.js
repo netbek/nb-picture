@@ -13,16 +13,15 @@
 		.module('widget')
 		.controller('widgetMapOverlayCanvasController', widgetMapOverlayCanvasController);
 
-	widgetMapOverlayCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils', 'PICTURE_SHAPE'];
-	function widgetMapOverlayCanvasController ($scope, $element, $attrs, $timeout, _, utils, PICTURE_SHAPE) {
+	widgetMapOverlayCanvasController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureMapOverlayUtils', 'nbPictureService', 'PICTURE_SHAPE'];
+	function widgetMapOverlayCanvasController ($scope, $element, $attrs, $timeout, _, utils, nbPictureService, PICTURE_SHAPE) {
 		/*jshint validthis: true */
+		var overlayId = 'canvas'; // {String} Overlay ID as defined in config.
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
 		};
 		var deregister = [];
 		var canvas, ctx;
-
-		$scope.highlights = []; // {Array} Array of highlighted map areas (not necessarily all).
 
 		/**
 		 *
@@ -44,33 +43,62 @@
 			 */
 			function fn (result) {
 				if (result.dirty) {
-					$scope.highlights = result.newValue;
+					var pictureId = $scope.picture.$id;
+					nbPictureService.setMapOverlayAreas(pictureId, overlayId, result.newValue);
 					render();
 				}
 			}
 
 			// If the base image has already been loaded, then set the initial highlights.
-			if ($scope.complete) {
-				fn(utils.onBaseLoad($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights));
+			if ($scope.complete && $scope.picture) {
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseLoad(config, areas, highs));
 			}
 
 			deregister.push($scope.$on('nbPicture:baseLoad', function () {
-				fn(utils.onBaseLoad($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseLoad(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:baseError', function () {
-				fn(utils.onBaseError($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseError(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:resize', function () {
-				fn(utils.onResize($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onResize(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
-				fn(utils.onClickArea($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights, event));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onClickArea(config, areas, highs, event));
 			}));
 			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
-				fn(utils.onFocusArea($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights, event, blur));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onFocusArea(config, areas, highs, event, blur));
 			}));
 			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
-				fn(utils.onHoverArea($scope.map.overlays.canvas, $scope.map.areas, $scope.highlights, event, blur));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onHoverArea(config, areas, highs, event, blur));
 			}));
 		};
 
@@ -87,8 +115,11 @@
 		 *
 		 */
 		function render () {
-			if ($scope.highlights.length) {
-				draw($scope.highlights);
+			var pictureId = $scope.picture.$id;
+			var areas = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+
+			if (areas.length) {
+				draw(areas);
 			}
 			else {
 				clear();
@@ -105,10 +136,10 @@
 
 		/**
 		 *
-		 * @param {Array} highlights
+		 * @param {Array} areas
 		 */
-		function draw (highlights) {
-			if (!highlights.length) {
+		function draw (areas) {
+			if (!areas.length) {
 				return;
 			}
 
@@ -116,14 +147,14 @@
 			canvas.width = canvas.scrollWidth;
 			canvas.height = canvas.scrollHeight;
 
-			var config = $scope.map.overlays.canvas;
+			var config = $scope.map.overlays[overlayId];
 
 			if (config.fill) {
 				ctx.fillStyle = rgba(config.fillColor, config.fillOpacity);
 			}
 
 			// Draw areas.
-			_.forEach(highlights, function (area) {
+			_.forEach(areas, function (area) {
 				var shape = area.shape;
 				var coords = area.$coords;
 

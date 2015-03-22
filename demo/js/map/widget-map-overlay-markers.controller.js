@@ -13,15 +13,16 @@
 		.module('widget')
 		.controller('widgetMapOverlayMarkersController', widgetMapOverlayMarkersController);
 
-	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureUtils', 'nbPictureMapOverlayUtils', 'PICTURE_SHAPE'];
-	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, nbPictureUtils, utils, PICTURE_SHAPE) {
+	widgetMapOverlayMarkersController.$inject = ['$scope', '$element', '$attrs', '$timeout', '_', 'nbPictureUtils', 'nbPictureMapOverlayUtils', 'nbPictureService', 'PICTURE_SHAPE'];
+	function widgetMapOverlayMarkersController ($scope, $element, $attrs, $timeout, _, nbPictureUtils, utils, nbPictureService, PICTURE_SHAPE) {
 		/*jshint validthis: true */
+		var overlayId = 'markers'; // {String} Overlay ID as defined in config.
 		var flags = {
 			init: false // {Boolean} Whether init() has been fired.
 		};
 		var deregister = [];
 
-		$scope.highlights = []; // {Array} Array of highlighted map areas (not necessarily all).
+		$scope.areas = []; // {Array} Array of highlighted map areas (not necessarily all).
 
 		/**
 		 *
@@ -40,41 +41,62 @@
 			 */
 			function fn (result) {
 				if (result.dirty) {
-					// Calc marker position.
-					_.forEach(result.newValue, function (area, index) {
-						var center = nbPictureUtils.getCenter(area.shape, area.$coords, true);
-						result.newValue[index].style = {
-							top: center[1] + 'px',
-							left: center[0] + 'px'
-						};
-					});
-
-					$scope.highlights = result.newValue;
+					var pictureId = $scope.picture.$id;
+					nbPictureService.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+					render();
 				}
 			}
 
 			// If the base image has already been loaded, then set the initial highlights.
 			if ($scope.complete) {
-				fn(utils.onBaseLoad($scope.map.overlays.markers, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseLoad(config, areas, highs));
 			}
 
 			deregister.push($scope.$on('nbPicture:baseLoad', function () {
-				fn(utils.onBaseLoad($scope.map.overlays.markers, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseLoad(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:baseError', function () {
-				fn(utils.onBaseError($scope.map.overlays.markers, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onBaseError(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:resize', function () {
-				fn(utils.onResize($scope.map.overlays.markers, $scope.map.areas, $scope.highlights));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onResize(config, areas, highs));
 			}));
 			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
-				fn(utils.onClickArea($scope.map.overlays.markers, $scope.map.areas, $scope.highlights, event));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onClickArea(config, areas, highs, event));
 			}));
 			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
-				fn(utils.onFocusArea($scope.map.overlays.markers, $scope.map.areas, $scope.highlights, event, blur));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onFocusArea(config, areas, highs, event, blur));
 			}));
 			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
-				fn(utils.onHoverArea($scope.map.overlays.markers, $scope.map.areas, $scope.highlights, event, blur));
+				var config = $scope.map.overlays[overlayId];
+				var pictureId = $scope.picture.$id;
+				var areas = nbPictureService.getMapAreas(pictureId);
+				var highs = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+				fn(utils.onHoverArea(config, areas, highs, event, blur));
 			}));
 		};
 
@@ -86,5 +108,25 @@
 				fn();
 			});
 		};
+
+		/**
+		 *
+		 */
+		function render () {
+			var pictureId = $scope.picture.$id;
+			var areas = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+
+			if (areas.length) {
+				_.forEach(areas, function (area, index) {
+					var center = nbPictureUtils.getCenter(area.shape, area.$coords, true);
+					areas[index].style = {
+						top: center[1] + 'px',
+						left: center[0] + 'px'
+					};
+				});
+			}
+
+			$scope.areas = areas;
+		}
 	}
 })(window, window.angular);
