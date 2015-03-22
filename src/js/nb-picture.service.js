@@ -235,13 +235,14 @@
 		 *
 		 * @param {String} pictureId
 		 * @param {Object} area
-		 * @returns {Boolean} Whether the map areas have been changed.
+		 * @returns {Boolean|Object} Returns the new map area, or if the area exists, then whether the map areas have been changed.
 		 */
 		this.setMapArea = function (pictureId, area) {
 			var dirty = false;
 			var map = self.getMap(pictureId);
 
 			if (map) {
+				// Update an existing map area.
 				if (area.$id) {
 					var index = _.findIndex(map.areas, {$id: area.$id});
 
@@ -250,9 +251,12 @@
 						map.areas[index] = area;
 					}
 				}
+				// Create a new map area.
 				else {
-					dirty = true;
-					map.areas.push(buildMapArea(area));
+					var newArea = buildMapArea(area);
+					map.areas.push(newArea);
+
+					return newArea;
 				}
 			}
 
@@ -338,6 +342,36 @@
 				}
 				else {
 					overlay.$areas = [];
+				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {Object} area
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.setMapOverlayArea = function (pictureId, overlayId, area) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				if (area.$id) {
+					dirty = true;
+
+					var areas = overlay.$areas;
+					var index = _.findIndex(areas, {$id: area.$id});
+
+					if (index > -1) {
+						areas[index] = area;
+					}
+					else {
+						areas.push(area);
+					}
 				}
 			}
 
@@ -587,7 +621,7 @@
 		function buildMapArea (area) {
 			return _.extend({}, defaultMapArea, area, {
 				$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
-				$coords: area.coords
+				$coords: area.$coords || area.coords
 			});
 		}
 
