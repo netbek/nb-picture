@@ -451,6 +451,363 @@
 				}
 			}
 		};
+
+		/**
+		 * Fired after the base image has been loaded.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onBaseLoad = function (pictureId, overlayId) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				var areas = self.getMapAreas(pictureId);
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+
+				if (overlay.alwaysOn) {
+					var result = showAllOverlayAreas(overlay, areas, highs);
+
+					if (result.dirty) {
+						self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+					}
+
+					return result.dirty;
+				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Fired after the base image has failed to load.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onBaseError = function (pictureId, overlayId) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+
+				if (highs.length) {
+					dirty = true;
+					self.setMapOverlayAreas(pictureId, overlayId, []);
+				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Fired after resize event.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onResize = function (pictureId, overlayId) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+
+				if (highs.length) {
+					dirty = true;
+
+					var areas = self.getMapAreas(pictureId);
+					var newHighs = [];
+
+					// Copy recalculated highlight coordinates from map areas.
+					_.forEach(highs, function (high) {
+						var area = _.find(areas, {$id: high.$id});
+						if (area) {
+							newHighs.push(_.cloneDeep(area));
+						}
+					});
+
+					self.setMapOverlayAreas(pictureId, overlayId, newHighs);
+				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Fired after click event.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {Events} event
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onClickArea = function (pictureId, overlayId, event) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay && !overlay.alwaysOn && overlay.click) {
+				var areaId = event.target.id;
+				var areas = self.getMapAreas(pictureId);
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+				var result, index, hideAllResult;
+
+				// If only one highlight may be visible at the same time.
+				if (overlay.single) {
+					index = _.findIndex(highs, {$id: areaId});
+
+					// If the highlight is currently visible, then hide it (and others).
+					if (index > -1) {
+						result = hideAllOverlayAreas(overlay, areas, highs);
+
+						if (result.dirty) {
+							self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+						}
+
+						return result.dirty;
+					}
+					// If the highlight is not currently visible, then show it.
+					else {
+						// If one or more other highlights are currently visible.
+						if (highs.length) {
+							// Hide the other highlights.
+							hideAllResult = hideAllOverlayAreas(overlay, areas, highs);
+
+							// Show the given highlight.
+							result = showOverlayArea(overlay, areas, hideAllResult.newValue, [areaId]);
+							result.dirty = true;
+
+							if (result.dirty) {
+								self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+							}
+
+							return result.dirty;
+						}
+						else {
+							// Show the given highlight.
+							result = showOverlayArea(overlay, areas, highs, [areaId]);
+
+							if (result.dirty) {
+								self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+							}
+
+							return result.dirty;
+						}
+					}
+				}
+				// If multiple highlights may be visible at the same time.
+				else {
+					result = toggleOverlayArea(overlay, areas, highs, [areaId]);
+
+					if (result.dirty) {
+						self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+					}
+
+					return result.dirty;
+				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Fired after keyboard event.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {Event} event
+		 * @param {Boolean} blur
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onFocusArea = function (pictureId, overlayId, event, blur) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay && !overlay.alwaysOn && overlay.focus) {
+				var areaId = event.target.id;
+				var areas = self.getMapAreas(pictureId);
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+				var result;
+
+				if (blur) {
+					result = hideOverlayArea(overlay, areas, highs, [areaId]);
+				}
+				else {
+					result = showOverlayArea(overlay, areas, highs, [areaId]);
+				}
+
+				if (result.dirty) {
+					self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+				}
+
+				return result.dirty;
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Fired after mouse hover event.
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {Event} event
+		 * @param {Boolean} blur
+		 * @returns {Boolean} Whether the overlay areas have been changed.
+		 */
+		this.onHoverArea = function (pictureId, overlayId, event, blur) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay && !overlay.alwaysOn && overlay.hover) {
+				var areaId = event.target.id;
+				var areas = self.getMapAreas(pictureId);
+				var highs = self.getMapOverlayAreas(pictureId, overlayId);
+				var result;
+
+				if (blur) {
+					result = hideOverlayArea(overlay, areas, highs, [areaId]);
+				}
+				else {
+					result = showOverlayArea(overlay, areas, highs, [areaId]);
+				}
+
+				if (result.dirty) {
+					self.setMapOverlayAreas(pictureId, overlayId, result.newValue);
+				}
+
+				return result.dirty;
+			}
+
+			return dirty;
+		};
+
+		/**
+		 * Toggles the given highlights.
+		 *
+		 * @param {Object} overlay
+		 * @param {Array} areas
+		 * @param {Array} highs
+		 * @param {Array} ids Array of area `$id` values. If none given, then all highlights are toggled.
+		 * @returns {Object}
+		 */
+		function toggleOverlayArea (overlay, areas, highs, ids) {
+			var dirty = false, newValue = highs;
+
+			if (ids.length) {
+				dirty = true;
+				newValue = [];
+
+				_.forEach(ids, function (id) {
+					var index = _.findIndex(highs, {$id: id});
+
+					// If the highlight is not currently visible, then show it.
+					if (index < 0) {
+						var area = _.find(areas, {$id: id});
+						if (area) {
+							newValue.push(_.cloneDeep(area));
+						}
+					}
+				});
+			}
+
+			return {
+				dirty: dirty,
+				newValue: newValue,
+				oldValue: highs
+			};
+		}
+
+		/**
+		 * Shows the given highlights.
+		 *
+		 * @param {Object} overlay
+		 * @param {Array} areas
+		 * @param {Array} highs
+		 * @param {Array} ids Array of area `$id` values.
+		 * @returns {Object}
+		 */
+		function showOverlayArea (overlay, areas, highs, ids) {
+			var dirty = false, newValue = highs;
+
+			if (ids.length) {
+				dirty = true;
+				newValue = [];
+
+				_.forEach(ids, function (id) {
+					var area = _.find(areas, {$id: id});
+					if (area) {
+						newValue.push(_.cloneDeep(area));
+					}
+				});
+			}
+
+			return {
+				dirty: dirty,
+				newValue: newValue,
+				oldValue: highs
+			};
+		}
+
+		/**
+		 * Shows all highlights.
+		 *
+		 * @param {Object} overlay
+		 * @param {Array} areas
+		 * @param {Array} highs
+		 * @returns {Object}
+		 */
+		function showAllOverlayAreas (overlay, areas, highs) {
+			return showOverlayArea(overlay, areas, highs, _.pluck(areas, '$id'));
+		}
+
+		/**
+		 * Hides the given highlights.
+		 *
+		 * @param {Object} overlay
+		 * @param {Array} areas
+		 * @param {Array} highs
+		 * @param {Array} ids Array of area `$id` values.
+		 * @returns {Object}
+		 */
+		function hideOverlayArea (overlay, areas, highs, ids) {
+			var dirty = false, newValue = highs;
+
+			if (ids.length) {
+				dirty = true;
+				newValue = [];
+
+				_.forEach(highs, function (old) {
+					// If the highlight should not be hidden, then save it.
+					if (_.indexOf(ids, old.$id) < 0) {
+						newValue.push(old);
+					}
+				});
+			}
+
+			return {
+				dirty: dirty,
+				newValue: newValue,
+				oldValue: highs
+			};
+		}
+
+		/**
+		 * Hides all highlights.
+		 *
+		 * @param {Object} overlay
+		 * @param {Array} areas
+		 * @param {Array} highs
+		 * @returns {Object}
+		 */
+		function hideAllOverlayAreas (overlay, areas, highs) {
+			return hideOverlayArea(overlay, areas, highs, _.pluck(highs, '$id'));
+		}
 	}
 })(window, window.angular);
 /**
@@ -1270,331 +1627,6 @@
 				});
 			}
 		};
-	}
-})(window, window.angular);
-/**
- * AngularJS directive for responsive images and image maps
- *
- * @author Hein Bekker <hein@netbek.co.za>
- * @copyright (c) 2015 Hein Bekker
- * @license http://www.gnu.org/licenses/agpl-3.0.txt AGPLv3
- */
-
-(function (window, angular, undefined) {
-	'use strict';
-
-	angular
-		.module('nb.picture')
-		.factory('nbPictureMapOverlayUtils', nbPictureMapOverlayUtils);
-
-	nbPictureMapOverlayUtils.$inject = ['_'];
-	function nbPictureMapOverlayUtils (_) {
-		var utils = {};
-
-		/**
-		 * Fired after base image has been loaded.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @returns {Object}
-		 */
-		utils.onBaseLoad = function (overlayConfig, areas, oldValue) {
-			var dirty = false, newValue = oldValue;
-
-			if (overlayConfig.alwaysOn) {
-				return showAll(overlayConfig, areas, oldValue);
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		};
-
-		/**
-		 * Fired after base image has failed to load.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @returns {Object}
-		 */
-		utils.onBaseError = function (overlayConfig, areas, oldValue) {
-			var dirty = false, newValue = oldValue;
-
-			if (oldValue.length) {
-				dirty = true;
-				newValue = [];
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		};
-
-		/**
-		 * Fired after resize event.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @returns {Object}
-		 * @see nbPictureService.resizeMap()
-		 */
-		utils.onResize = function (overlayConfig, areas, oldValue) {
-			var dirty = false, newValue = oldValue;
-
-			if (oldValue.length) {
-				dirty = true;
-				newValue = [];
-
-				// Copy recalculated highlight coordinates from map areas.
-				_.forEach(oldValue, function (old) {
-					var area = _.find(areas, {$id: old.$id});
-					if (area) {
-						newValue.push(_.cloneDeep(area));
-					}
-				});
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		};
-
-		/**
-		 * Fired after click event.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Event} event
-		 * @returns {Object}
-		 */
-		utils.onClickArea = function (overlayConfig, areas, oldValue, event) {
-			if (!overlayConfig.alwaysOn && overlayConfig.click) {
-				var id = event.target.id;
-
-				// If only one highlight may be visible at the same time.
-				if (overlayConfig.single) {
-					var index = _.findIndex(oldValue, {$id: id});
-
-					// If the highlight is currently visible, then hide it (and others).
-					if (index > -1) {
-						return hideAll(overlayConfig, areas, oldValue);
-					}
-					// If the highlight is not currently visible, then show it.
-					else {
-						// If one or more other highlights are currently visible.
-						if (oldValue.length) {
-							// Hide the other highlights.
-							var a = hideAll(overlayConfig, areas, oldValue);
-
-							// Show the given highlight.
-							var b = show(overlayConfig, areas, a.newValue, [id]);
-							b.dirty = true;
-
-							return b;
-						}
-						else {
-							// Show the given highlight.
-							return show(overlayConfig, areas, oldValue, [id]);
-						}
-					}
-				}
-
-				// If multiple highlights may be visible at the same time.
-				return toggle(overlayConfig, areas, oldValue, [id]);
-			}
-
-			return {
-				dirty: false,
-				newValue: oldValue,
-				oldValue: oldValue
-			};
-		};
-
-		/**
-		 * Fired after keyboard event.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Event} event
-		 * @param {Boolean} blur
-		 * @returns {Object}
-		 */
-		utils.onFocusArea = function (overlayConfig, areas, oldValue, event, blur) {
-			if (!overlayConfig.alwaysOn && overlayConfig.focus) {
-				var id = event.target.id;
-
-				if (blur) {
-					return hide(overlayConfig, areas, oldValue, [id]);
-				}
-
-				return show(overlayConfig, areas, oldValue, [id]);
-			}
-
-			return {
-				dirty: false,
-				newValue: oldValue,
-				oldValue: oldValue
-			};
-		};
-
-		/**
-		 * Fired after mouse hover event.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Event} event
-		 * @param {Boolean} blur
-		 * @returns {Object}
-		 */
-		utils.onHoverArea = function (overlayConfig, areas, oldValue, event, blur) {
-			if (!overlayConfig.alwaysOn && overlayConfig.hover) {
-				var id = event.target.id;
-
-				if (blur) {
-					return hide(overlayConfig, areas, oldValue, [id]);
-				}
-
-				return show(overlayConfig, areas, oldValue, [id]);
-			}
-
-			return false;
-		};
-
-		/**
-		 * Toggles the given highlights.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Array} ids Array of area `$id` values. If none given, then all highlights are toggled.
-		 * @returns {Object}
-		 */
-		function toggle (overlayConfig, areas, oldValue, ids) {
-			var dirty = false, newValue = oldValue;
-
-			if (ids.length) {
-				dirty = true;
-				newValue = [];
-
-				_.forEach(ids, function (id) {
-					var index = _.findIndex(oldValue, {$id: id});
-
-					// If the highlight is not currently visible, then show it.
-					if (index < 0) {
-						var area = _.find(areas, {$id: id});
-						if (area) {
-							newValue.push(_.cloneDeep(area));
-						}
-					}
-				});
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		}
-
-		/**
-		 * Shows the given highlights.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Array} ids Array of area `$id` values.
-		 * @returns {Object}
-		 */
-		function show (overlayConfig, areas, oldValue, ids) {
-			var dirty = false, newValue = oldValue;
-
-			if (ids.length) {
-				dirty = true;
-				newValue = [];
-
-				_.forEach(ids, function (id) {
-					var area = _.find(areas, {$id: id});
-					if (area) {
-						newValue.push(_.cloneDeep(area));
-					}
-				});
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		}
-
-		/**
-		 * Shows all highlights.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @returns {Object}
-		 */
-		function showAll (overlayConfig, areas, oldValue) {
-			return show(overlayConfig, areas, oldValue, _.pluck(areas, '$id'));
-		}
-
-		/**
-		 * Hides the given highlights.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @param {Array} ids Array of area `$id` values.
-		 * @returns {Object}
-		 */
-		function hide (overlayConfig, areas, oldValue, ids) {
-			var dirty = false, newValue = oldValue;
-
-			if (ids.length) {
-				dirty = true;
-				newValue = [];
-
-				_.forEach(oldValue, function (old) {
-					// If the highlight should not be hidden, then save it.
-					if (_.indexOf(ids, old.$id) < 0) {
-						newValue.push(old);
-					}
-				});
-			}
-
-			return {
-				dirty: dirty,
-				newValue: newValue,
-				oldValue: oldValue
-			};
-		}
-
-		/**
-		 * Hides all highlights.
-		 *
-		 * @param {Object} overlayConfig
-		 * @param {Array} areas
-		 * @param {Array} oldValue
-		 * @returns {Object}
-		 */
-		function hideAll (overlayConfig, areas, oldValue) {
-			return hide(overlayConfig, areas, oldValue, _.pluck(oldValue, '$id'));
-		}
-
-		return utils;
 	}
 })(window, window.angular);
 /**

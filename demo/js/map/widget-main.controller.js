@@ -47,8 +47,8 @@
 					relCoords: true,
 					overlays: {
 						canvas: {
-//							alwaysOn: true,
-							hover: true,
+							single: true,
+							click: true,
 							fill: true,
 							fillColor: 'FF0000',
 							fillOpacity: 0.5
@@ -88,7 +88,6 @@
 					relCoords: true,
 					overlays: {
 						canvas: {
-//							alwaysOn: true,
 							hover: true,
 							fill: true,
 							fillColor: 'FF0000',

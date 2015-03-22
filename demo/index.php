@@ -30,7 +30,6 @@
 		<script src="../src/js/nb-picture-map.directive.js"></script>
 		<script src="../src/js/nb-picture-map-once.directive.js"></script>
 		<script src="../src/js/nb-picture-map-overlay-areas.directive.js"></script>
-		<script src="../src/js/nb-picture-map-overlay-utils.service.js"></script>
 		<script src="../src/js/nb-picture-templates.js"></script>
 		<script src="../src/js/picturefill.service.js"></script>
 

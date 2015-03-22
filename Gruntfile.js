@@ -60,7 +60,6 @@ module.exports = function (grunt) {
 					'src/js/nb-picture-map.directive.js',
 					'src/js/nb-picture-map-once.directive.js',
 					'src/js/nb-picture-map-overlay-areas.directive.js',
-					'src/js/nb-picture-map-overlay-utils.service.js',
 					'src/js/picturefill.service.js',
 					'build/js/<%= pkg.name %>-templates.js'
 				],
