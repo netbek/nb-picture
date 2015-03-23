@@ -52,7 +52,7 @@ module.exports = function (grunt) {
 					'src/js/nb-picture.filters.js',
 					'src/js/nb-picture-config.service.js',
 					'src/js/nb-picture.service.js',
-					'src/js/nb-picture-utils.service.js',
+					'src/js/nb-picture-util.service.js',
 					'src/js/nb-picture.controller.js',
 					'src/js/nb-picture.directive.js',
 					'src/js/nb-picture-once.directive.js',
