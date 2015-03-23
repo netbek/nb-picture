@@ -15,6 +15,8 @@
 
 	nbPictureUtilService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
 	function nbPictureUtilService (PICTURE_POSITION, PICTURE_SHAPE, _) {
+		/* jshint validthis: true */
+
 		/**
 		 *
 		 * @param {Number} x Value between 0 and 1.
