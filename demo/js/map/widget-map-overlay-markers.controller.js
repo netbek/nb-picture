@@ -78,9 +78,7 @@
 			}));
 
 			deregister.push($scope.$on('nbPicture:resize', function (e) {
-				if (nbPictureService.onResize(pictureId, overlayId)) {
-					render();
-				}
+				render();
 			}));
 
 			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
@@ -115,17 +113,15 @@
 		 *
 		 */
 		function render () {
-			var areas = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
+			var areas = _.cloneDeep(nbPictureService.getMapOverlayAreas(pictureId, overlayId));
 
-			if (areas.length) {
-				_.forEach(areas, function (area, index) {
-					var center = nbPictureUtilService.getCenter(area.shape, area.$$coords, true);
-					areas[index].style = {
-						top: center[1] + 'px',
-						left: center[0] + 'px'
-					};
-				});
-			}
+			_.forEach(areas, function (area, index) {
+				var center = nbPictureUtilService.getCenter(area.shape, area.$$coords, true);
+				areas[index].style = {
+					top: center[1] + 'px',
+					left: center[0] + 'px'
+				};
+			});
 
 			$scope.areas = areas;
 		}
