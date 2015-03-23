@@ -15,8 +15,8 @@
 
 	var uniqid = 0;
 
-	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig', 'nbPictureUtils'];
-	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig, nbPictureUtils) {
+	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig', 'nbPictureUtilService'];
+	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig, nbPictureUtilService) {
 		/* jshint validthis: true */
 		var self = this;
 		var flags = {};
@@ -200,7 +200,7 @@
 			}
 
 			_.forEach(map.areas, function (area, index) {
-				map.areas[index].$coords = nbPictureUtils.relToAbsCoords(area.shape, area.coords, width, height, round);
+				map.areas[index].$coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
 			});
 		};
 
