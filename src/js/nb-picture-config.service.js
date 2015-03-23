@@ -34,7 +34,7 @@
 		};
 		return {
 			set: function (values) {
-				config = values;
+				_.merge(config, values);
 			},
 			$get: function () {
 				return config;
