@@ -317,12 +317,31 @@
 		this.resizeMap = function (pictureId, width, height, round) {
 			var map = self.getMap(pictureId);
 
-			if (!map || !map.relCoords || !width || !height) {
+			if (!map || !width || !height) {
 				return;
 			}
 
 			_.forEach(map.areas, function (area, index) {
-				map.areas[index].$$coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
+				var coords;
+
+				if (map.relCoords) {
+					coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
+				}
+				else {
+					coords = _.cloneDeep(area.coords);
+				}
+
+				map.areas[index].$$coords = coords;
+
+				// Update map overlays that have the area.
+				_.forEach(map.overlays, function (overlay, overlayId) {
+					var overlayArea = _.find(overlay.$$areas, {$$id: area.$$id});
+
+					if (overlayArea) {
+						overlayArea.$$coords = coords;
+						self.setMapOverlayArea(pictureId, overlayId, overlayArea);
+					}
+				});
 			});
 		};
 
@@ -371,12 +390,28 @@
 					if (index > -1) {
 						dirty = true;
 						map.areas[index] = area;
+
+						// Update map overlays that have the given area.
+						_.forEach(map.overlays, function (overlay, overlayId) {
+							var index = _.findIndex(overlay.$$areas, {$$id: area.$$id});
+
+							if (index > -1) {
+								self.setMapOverlayArea(pictureId, overlayId, _.cloneDeep(area));
+							}
+						});
 					}
 				}
 				// Create a new map area.
 				else {
 					var newArea = buildMapArea(area);
 					map.areas.push(newArea);
+
+					// Add the new area to overlays that are always on.
+					_.forEach(map.overlays, function (overlay, overlayId) {
+						if (overlay.alwaysOn) {
+							self.setMapOverlayArea(pictureId, overlayId, newArea);
+						}
+					});
 
 					return newArea;
 				}
@@ -474,6 +509,21 @@
 		 *
 		 * @param {String} pictureId
 		 * @param {String} overlayId
+		 * @param {String} areaId
+		 * @returns {Object|undefined}
+		 */
+		this.getMapOverlayArea = function (pictureId, overlayId, areaId) {
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				return _.find(overlay.$$areas, {$$id: areaId});
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
 		 * @param {Object} area
 		 * @returns {Boolean} Whether the overlay areas have been changed.
 		 */
@@ -546,41 +596,6 @@
 				if (highs.length) {
 					dirty = true;
 					self.setMapOverlayAreas(pictureId, overlayId, []);
-				}
-			}
-
-			return dirty;
-		};
-
-		/**
-		 * Fired after resize event.
-		 *
-		 * @param {String} pictureId
-		 * @param {String} overlayId
-		 * @returns {Boolean} Whether the overlay areas have been changed.
-		 */
-		this.onResize = function (pictureId, overlayId) {
-			var dirty = false;
-			var overlay = self.getMapOverlay(pictureId, overlayId);
-
-			if (overlay) {
-				var highs = self.getMapOverlayAreas(pictureId, overlayId);
-
-				if (highs.length) {
-					dirty = true;
-
-					var areas = self.getMapAreas(pictureId);
-					var newHighs = [];
-
-					// Copy recalculated highlight coordinates from map areas.
-					_.forEach(highs, function (high) {
-						var area = _.find(areas, {$$id: high.$$id});
-						if (area) {
-							newHighs.push(_.cloneDeep(area));
-						}
-					});
-
-					self.setMapOverlayAreas(pictureId, overlayId, newHighs);
 				}
 			}
 
