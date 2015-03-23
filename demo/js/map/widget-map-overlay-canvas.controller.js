@@ -42,31 +42,58 @@
 				}
 			}));
 
-			deregister.push($scope.$on('nbPicture:baseLoad', function (e) {
+			var onBaseLoad = function () {
+				completeWatch();
+
 				if (nbPictureService.onBaseLoad(pictureId, overlayId)) {
 					render();
 				}
+			};
+			var completeWatch = angular.noop;
+
+			// Create a one-time watcher for `picture.$complete`. This is needed
+			// because the directive might fire its controller's `init()` after
+			// the image has been loaded. If this happened, then the controller
+			// would not see the `nbPicture:baseLoad` event.
+			(function () {
+				completeWatch = $scope.$watch('$parent.$parent.picture.$complete', function (newValue, oldValue) {
+					if (newValue) {
+						onBaseLoad();
+					}
+				});
+				deregister.push(completeWatch);
+			})();
+
+			deregister.push($scope.$on('nbPicture:baseLoad', function (e) {
+				onBaseLoad();
 			}));
+
 			deregister.push($scope.$on('nbPicture:baseError', function (e) {
+				completeWatch();
+
 				if (nbPictureService.onBaseError(pictureId, overlayId)) {
 					render();
 				}
 			}));
+
 			deregister.push($scope.$on('nbPicture:resize', function (e) {
 				if (nbPictureService.onResize(pictureId, overlayId)) {
 					render();
 				}
 			}));
+
 			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
 				if (nbPictureService.onClickArea(pictureId, overlayId, event)) {
 					render();
 				}
 			}));
+
 			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
 				if (nbPictureService.onFocusArea(pictureId, overlayId, event, blur)) {
 					render();
 				}
 			}));
+
 			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
 				if (nbPictureService.onHoverArea(pictureId, overlayId, event, blur)) {
 					render();
