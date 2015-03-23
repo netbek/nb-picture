@@ -13,26 +13,20 @@
 		.module('nb.picture')
 		.directive('nbPictureMapOverlayAreas', nbPictureMapOverlayAreasDirective);
 
-	function nbPictureMapOverlayAreasDirective () {
+	nbPictureMapOverlayAreasDirective.$inject = ['nbPictureService'];
+	function nbPictureMapOverlayAreasDirective (nbPictureService) {
 		return {
 			restrict: 'EA',
 			replace: true,
 			scope: true,
 			templateUrl: 'templates/nb-picture-map-overlay-areas.html',
 			link: function (scope, element, attrs) {
-				var watch = scope.$watch(function () {
-					return {
-						alt: scope.picture & scope.picture.img ? scope.picture.img.alt : '',
-						usemap: scope.map && scope.map.name ? '#' + scope.map.name : ''
-					};
-				}, function (newValue, oldValue, scope) {
-					angular.forEach(newValue, function (value, key) {
-						scope[key] = value;
-					});
-				}, true);
+				scope.$on('nbPicture:baseLoad', function (e, pictureId) {
+					var picture = nbPictureService.getPicture(pictureId);
+					var map = nbPictureService.getMap(pictureId);
 
-				scope.$on('$destroy', function () {
-					watch();
+					scope.alt = picture && picture.img ? picture.img.alt : '';
+					scope.usemap = map && map.name ? '#' + map.name : '';
 				});
 			}
 		};

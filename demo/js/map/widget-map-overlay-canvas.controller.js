@@ -36,41 +36,34 @@
 			canvas = $element[0];
 			ctx = canvas.getContext('2d');
 
-			// If the base image has already been loaded, then set the initial highlights.
-			if ($scope.complete && $scope.picture) {
-				if (nbPictureService.onBaseLoad($scope.picture.$id, overlayId)) {
-					render();
-				}
-			}
-
-			deregister.push($scope.$on('nbPicture:baseLoad', function () {
-				if (nbPictureService.onBaseLoad($scope.picture.$id, overlayId)) {
-					render();
+			deregister.push($scope.$on('nbPicture:baseLoad', function (e, pictureId) {
+				if (nbPictureService.onBaseLoad(pictureId, overlayId)) {
+					render(pictureId);
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:baseError', function () {
-				if (nbPictureService.onBaseError($scope.picture.$id, overlayId)) {
-					render();
+			deregister.push($scope.$on('nbPicture:baseError', function (e, pictureId) {
+				if (nbPictureService.onBaseError(pictureId, overlayId)) {
+					render(pictureId);
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:resize', function () {
-				if (nbPictureService.onResize($scope.picture.$id, overlayId)) {
-					render();
+			deregister.push($scope.$on('nbPicture:resize', function (e, pictureId) {
+				if (nbPictureService.onResize(pictureId, overlayId)) {
+					render(pictureId);
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
-				if (nbPictureService.onClickArea($scope.picture.$id, overlayId, event)) {
-					render();
+			deregister.push($scope.$on('nbPicture:clickArea', function (e, pictureId, event) {
+				if (nbPictureService.onClickArea(pictureId, overlayId, event)) {
+					render(pictureId);
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
-				if (nbPictureService.onFocusArea($scope.picture.$id, overlayId, event, blur)) {
-					render();
+			deregister.push($scope.$on('nbPicture:focusArea', function (e, pictureId, event, blur) {
+				if (nbPictureService.onFocusArea(pictureId, overlayId, event, blur)) {
+					render(pictureId);
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
-				if (nbPictureService.onHoverArea($scope.picture.$id, overlayId, event, blur)) {
-					render();
+			deregister.push($scope.$on('nbPicture:hoverArea', function (e, pictureId, event, blur) {
+				if (nbPictureService.onHoverArea(pictureId, overlayId, event, blur)) {
+					render(pictureId);
 				}
 			}));
 		};
@@ -86,13 +79,13 @@
 
 		/**
 		 *
+		 * @param {String} pictureId
 		 */
-		function render () {
-			var pictureId = $scope.picture.$id;
+		function render (pictureId) {
 			var areas = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
 
 			if (areas.length) {
-				draw(areas);
+				draw(pictureId, areas);
 			}
 			else {
 				clear();
@@ -109,9 +102,10 @@
 
 		/**
 		 *
+		 * @param {String} pictureId
 		 * @param {Array} areas
 		 */
-		function draw (areas) {
+		function draw (pictureId, areas) {
 			if (!areas.length) {
 				return;
 			}
@@ -120,7 +114,6 @@
 			canvas.width = canvas.scrollWidth;
 			canvas.height = canvas.scrollHeight;
 
-			var pictureId = $scope.picture.$id;
 			var overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 
 			if (overlay.fill) {

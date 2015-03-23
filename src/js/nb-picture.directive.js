@@ -17,6 +17,7 @@
 		return {
 			restrict: 'EA',
 			replace: true,
+			scope: true,
 			controller: 'nbPictureController',
 			templateUrl: 'templates/nb-picture.html',
 			link: function (scope, element, attrs, controller) {

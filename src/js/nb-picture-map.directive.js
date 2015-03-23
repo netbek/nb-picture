@@ -18,6 +18,7 @@
 			restrict: 'EA',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: 'nbPictureMapController',
 			templateUrl: 'templates/nb-picture-map.html',
 			link: function (scope, element, attrs, controller) {

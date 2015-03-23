@@ -43,7 +43,7 @@
 				event.preventDefault();
 			}
 
-			$scope.$broadcast('nbPicture:clickArea', event);
+			$scope.$broadcast('nbPicture:clickArea', pictureId, event);
 		};
 
 		/**
@@ -52,7 +52,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.focusArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:focusArea', event, blur);
+			$scope.$broadcast('nbPicture:focusArea', pictureId, event, blur);
 		};
 
 		/**
@@ -61,7 +61,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.hoverArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:hoverArea', event, blur);
+			$scope.$broadcast('nbPicture:hoverArea', pictureId, event, blur);
 		};
 
 		/**
@@ -200,7 +200,7 @@
 
 				removeImgEventListeners();
 
-				$scope.$broadcast('nbPicture:baseError');
+				$scope.$broadcast('nbPicture:baseError', pictureId);
 			}
 		}
 
@@ -217,7 +217,7 @@
 
 				nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-				$scope.$broadcast('nbPicture:baseLoad');
+				$scope.$broadcast('nbPicture:baseLoad', pictureId);
 
 				$scope.$apply();
 			}
@@ -249,7 +249,7 @@
 		function onWindowResize (event) {
 			nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-			$scope.$broadcast('nbPicture:resize');
+			$scope.$broadcast('nbPicture:resize', pictureId);
 
 			$scope.$apply();
 		}

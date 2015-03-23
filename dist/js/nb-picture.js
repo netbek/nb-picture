@@ -110,8 +110,8 @@
 
 	var uniqid = 0;
 
-	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig', 'nbPictureUtils'];
-	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig, nbPictureUtils) {
+	nbPictureService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_', 'nbI18N', 'nbPictureConfig', 'nbPictureUtilService'];
+	function nbPictureService (PICTURE_POSITION, PICTURE_SHAPE, _, nbI18N, nbPictureConfig, nbPictureUtilService) {
 		/* jshint validthis: true */
 		var self = this;
 		var flags = {};
@@ -295,7 +295,7 @@
 			}
 
 			_.forEach(map.areas, function (area, index) {
-				map.areas[index].$coords = nbPictureUtils.relToAbsCoords(area.shape, area.coords, width, height, round);
+				map.areas[index].$coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
 			});
 		};
 
@@ -856,11 +856,11 @@
 
 	angular
 		.module('nb.picture')
-		.factory('nbPictureUtils', nbPictureUtils);
+		.service('nbPictureUtilService', nbPictureUtilService);
 
-	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
-	function nbPictureUtils (PICTURE_POSITION, PICTURE_SHAPE, _) {
-		var utils = {};
+	nbPictureUtilService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
+	function nbPictureUtilService (PICTURE_POSITION, PICTURE_SHAPE, _) {
+		/* jshint validthis: true */
 
 		/**
 		 *
@@ -868,7 +868,7 @@
 		 * @param {Number} y Value between 0 and 1.
 		 * @returns {String}
 		 */
-		utils.getPosition = function (x, y) {
+		this.getPosition = function (x, y) {
 			// Left
 			if (x < 0.5) {
 				// Top
@@ -901,7 +901,7 @@
 		 * @param {Array} point
 		 * @returns {Boolean}
 		 */
-		utils.contains = function (shape, coords, point) {
+		this.contains = function (shape, coords, point) {
 			var x = point[0];
 			var y = point[1];
 
@@ -914,7 +914,7 @@
 				return distanceSquared <= radius * radius;
 			}
 			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
-				var bounds = utils.getBounds(shape, coords);
+				var bounds = this.getBounds(shape, coords);
 
 				return x >= bounds[0] && x <= bounds[2] && y >= bounds[1] && y <= bounds[3];
 			}
@@ -929,8 +929,8 @@
 		 * @param {Array} coords
 		 * @returns {Object}
 		 */
-		utils.getSize = function (shape, coords) {
-			var bounds = utils.getBounds(shape, coords);
+		this.getSize = function (shape, coords) {
+			var bounds = this.getBounds(shape, coords);
 
 			return {
 				width: bounds[2] - bounds[0],
@@ -945,7 +945,7 @@
 		 * @param {Array} coords
 		 * @returns {Array}
 		 */
-		utils.getBounds = function (shape, coords) {
+		this.getBounds = function (shape, coords) {
 			var x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
 			if (shape === PICTURE_SHAPE.CIRCLE) {
@@ -983,7 +983,7 @@
 		 * @param {Boolean} round Whether to round the returned values.
 		 * @returns {Array}
 		 */
-		utils.getCenter = function (shape, coords, round) {
+		this.getCenter = function (shape, coords, round) {
 			var x = 0, y = 0;
 
 			if (shape === PICTURE_SHAPE.CIRCLE) {
@@ -991,7 +991,7 @@
 				y = coords[1];
 			}
 			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
-				var bounds = utils.getBounds(shape, coords);
+				var bounds = this.getBounds(shape, coords);
 				x = (bounds[0] + bounds[2]) / 2;
 				y = (bounds[1] + bounds[3]) / 2;
 			}
@@ -1013,7 +1013,7 @@
 		 * @param {Boolean} round Whether to round the returned values.
 		 * @returns {Array}
 		 */
-		utils.relToAbsCoords = function (shape, coords, width, height, round) {
+		this.relToAbsCoords = function (shape, coords, width, height, round) {
 			var i, val;
 			var len = coords.length;
 			var newCoords = new Array(len);
@@ -1057,8 +1057,6 @@
 
 			return newCoords;
 		};
-
-		return utils;
 	}
 })(window, window.angular);
 /**
@@ -1265,6 +1263,7 @@
 		return {
 			restrict: 'EA',
 			replace: true,
+			scope: true,
 			controller: 'nbPictureController',
 			templateUrl: 'templates/nb-picture.html',
 			link: function (scope, element, attrs, controller) {
@@ -1301,6 +1300,7 @@
 		return {
 			restrict: 'EA',
 			replace: true,
+			scope: true,
 			controller: 'nbPictureController',
 			templateUrl: 'templates/nb-picture-once.html',
 			link: function (scope, element, attrs, controller) {
@@ -1346,7 +1346,6 @@
 		var $img, img;
 
 		$scope.complete = false; // {Boolean} Whether the image has loaded or failed to load.
-//		$scope.map = nbPictureService.getMap(); // {Object}
 
 		/**
 		 *
@@ -1365,7 +1364,7 @@
 				event.preventDefault();
 			}
 
-			$scope.$broadcast('nbPicture:clickArea', event);
+			$scope.$broadcast('nbPicture:clickArea', pictureId, event);
 		};
 
 		/**
@@ -1374,7 +1373,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.focusArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:focusArea', event, blur);
+			$scope.$broadcast('nbPicture:focusArea', pictureId, event, blur);
 		};
 
 		/**
@@ -1383,7 +1382,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.hoverArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:hoverArea', event, blur);
+			$scope.$broadcast('nbPicture:hoverArea', pictureId, event, blur);
 		};
 
 		/**
@@ -1522,7 +1521,7 @@
 
 				removeImgEventListeners();
 
-				$scope.$broadcast('nbPicture:baseError');
+				$scope.$broadcast('nbPicture:baseError', pictureId);
 			}
 		}
 
@@ -1539,7 +1538,7 @@
 
 				nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-				$scope.$broadcast('nbPicture:baseLoad');
+				$scope.$broadcast('nbPicture:baseLoad', pictureId);
 
 				$scope.$apply();
 			}
@@ -1571,7 +1570,7 @@
 		function onWindowResize (event) {
 			nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-			$scope.$broadcast('nbPicture:resize');
+			$scope.$broadcast('nbPicture:resize', pictureId);
 
 			$scope.$apply();
 		}
@@ -1621,6 +1620,7 @@
 			restrict: 'EA',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: 'nbPictureMapController',
 			templateUrl: 'templates/nb-picture-map.html',
 			link: function (scope, element, attrs, controller) {
@@ -1658,6 +1658,7 @@
 			restrict: 'EA',
 			replace: true,
 			transclude: true,
+			scope: true,
 			controller: 'nbPictureMapController',
 			templateUrl: 'templates/nb-picture-map-once.html',
 			link: function (scope, element, attrs, controller) {
@@ -1691,26 +1692,20 @@
 		.module('nb.picture')
 		.directive('nbPictureMapOverlayAreas', nbPictureMapOverlayAreasDirective);
 
-	function nbPictureMapOverlayAreasDirective () {
+	nbPictureMapOverlayAreasDirective.$inject = ['nbPictureService'];
+	function nbPictureMapOverlayAreasDirective (nbPictureService) {
 		return {
 			restrict: 'EA',
 			replace: true,
 			scope: true,
 			templateUrl: 'templates/nb-picture-map-overlay-areas.html',
 			link: function (scope, element, attrs) {
-				var watch = scope.$watch(function () {
-					return {
-						alt: scope.picture & scope.picture.img ? scope.picture.img.alt : '',
-						usemap: scope.map && scope.map.name ? '#' + scope.map.name : ''
-					};
-				}, function (newValue, oldValue, scope) {
-					angular.forEach(newValue, function (value, key) {
-						scope[key] = value;
-					});
-				}, true);
+				scope.$on('nbPicture:baseLoad', function (e, pictureId) {
+					var picture = nbPictureService.getPicture(pictureId);
+					var map = nbPictureService.getMap(pictureId);
 
-				scope.$on('$destroy', function () {
-					watch();
+					scope.alt = picture && picture.img ? picture.img.alt : '';
+					scope.usemap = map && map.name ? '#' + map.name : '';
 				});
 			}
 		};
