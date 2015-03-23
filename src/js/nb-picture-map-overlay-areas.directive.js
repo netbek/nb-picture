@@ -21,12 +21,29 @@
 			scope: true,
 			templateUrl: 'templates/nb-picture-map-overlay-areas.html',
 			link: function (scope, element, attrs) {
-				scope.$on('nbPicture:baseLoad', function (e, pictureId) {
-					var picture = nbPictureService.getPicture(pictureId);
-					var map = nbPictureService.getMap(pictureId);
+				var watch = scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+					var model = {
+						alt: '',
+						usemap: ''
+					};
 
-					scope.alt = picture && picture.img ? picture.img.alt : '';
-					scope.usemap = map && map.name ? '#' + map.name : '';
+					if (newValue) {
+						var picture = nbPictureService.getPicture(newValue);
+						var map = nbPictureService.getMap(newValue);
+
+						if (picture) {
+							model.alt = picture.img.alt || '';
+						}
+						if (map && map.name) {
+							model.usemap = '#' + map.name;
+						}
+					}
+
+					scope.model = model;
+				});
+
+				scope.$on('$destroy', function () {
+					watch();
 				});
 			}
 		};

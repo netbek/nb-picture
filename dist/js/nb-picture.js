@@ -1364,7 +1364,7 @@
 				event.preventDefault();
 			}
 
-			$scope.$broadcast('nbPicture:clickArea', pictureId, event);
+			$scope.$broadcast('nbPicture:clickArea', event);
 		};
 
 		/**
@@ -1373,7 +1373,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.focusArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:focusArea', pictureId, event, blur);
+			$scope.$broadcast('nbPicture:focusArea', event, blur);
 		};
 
 		/**
@@ -1382,7 +1382,7 @@
 		 * @param {Boolean} blur
 		 */
 		$scope.hoverArea = function (event, blur) {
-			$scope.$broadcast('nbPicture:hoverArea', pictureId, event, blur);
+			$scope.$broadcast('nbPicture:hoverArea', event, blur);
 		};
 
 		/**
@@ -1521,7 +1521,7 @@
 
 				removeImgEventListeners();
 
-				$scope.$broadcast('nbPicture:baseError', pictureId);
+				$scope.$broadcast('nbPicture:baseError');
 			}
 		}
 
@@ -1538,7 +1538,7 @@
 
 				nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-				$scope.$broadcast('nbPicture:baseLoad', pictureId);
+				$scope.$broadcast('nbPicture:baseLoad');
 
 				$scope.$apply();
 			}
@@ -1570,7 +1570,7 @@
 		function onWindowResize (event) {
 			nbPictureService.resizeMap(pictureId, $scope.width(), $scope.height(), true);
 
-			$scope.$broadcast('nbPicture:resize', pictureId);
+			$scope.$broadcast('nbPicture:resize');
 
 			$scope.$apply();
 		}
@@ -1700,12 +1700,29 @@
 			scope: true,
 			templateUrl: 'templates/nb-picture-map-overlay-areas.html',
 			link: function (scope, element, attrs) {
-				scope.$on('nbPicture:baseLoad', function (e, pictureId) {
-					var picture = nbPictureService.getPicture(pictureId);
-					var map = nbPictureService.getMap(pictureId);
+				var watch = scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+					var model = {
+						alt: '',
+						usemap: ''
+					};
 
-					scope.alt = picture && picture.img ? picture.img.alt : '';
-					scope.usemap = map && map.name ? '#' + map.name : '';
+					if (newValue) {
+						var picture = nbPictureService.getPicture(newValue);
+						var map = nbPictureService.getMap(newValue);
+
+						if (picture) {
+							model.alt = picture.img.alt || '';
+						}
+						if (map && map.name) {
+							model.usemap = '#' + map.name;
+						}
+					}
+
+					scope.model = model;
+				});
+
+				scope.$on('$destroy', function () {
+					watch();
 				});
 			}
 		};
@@ -1769,8 +1786,8 @@ angular.module("templates/nb-picture-map-overlay-areas.html", []).run(["$templat
   $templateCache.put("templates/nb-picture-map-overlay-areas.html",
     "<span class=\"picture-map-overlay-areas\">\n" +
     "	<img src=\"data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7\"\n" +
-    "		 ng-attr-alt=\"{{alt}}\"\n" +
-    "		 ng-attr-usemap=\"{{usemap}}\" />\n" +
+    "		 ng-attr-alt=\"{{model.alt}}\"\n" +
+    "		 ng-attr-usemap=\"{{model.usemap}}\" />\n" +
     "</span>");
 }]);
 

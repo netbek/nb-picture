@@ -21,6 +21,7 @@
 			init: false // {Boolean} Whether init() has been fired.
 		};
 		var deregister = [];
+		var pictureId;
 
 		$scope.areas = []; // {Array} Array of highlighted map areas (not necessarily all).
 
@@ -34,36 +35,42 @@
 
 			flags.init = true;
 
-			deregister.push($scope.$on('nbPicture:baseLoad', function (e, pictureId) {
+			deregister.push($scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+				if (newValue) {
+					pictureId = newValue;
+				}
+			}));
+
+			deregister.push($scope.$on('nbPicture:baseLoad', function (e) {
 				$scope.overlay = nbPictureService.getMapOverlay(pictureId, overlayId);
 
 				if (nbPictureService.onBaseLoad(pictureId, overlayId)) {
-					render(pictureId);
+					render();
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:baseError', function (e, pictureId) {
+			deregister.push($scope.$on('nbPicture:baseError', function (e) {
 				if (nbPictureService.onBaseError(pictureId, overlayId)) {
-					render(pictureId);
+					render();
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:resize', function (e, pictureId) {
+			deregister.push($scope.$on('nbPicture:resize', function (e) {
 				if (nbPictureService.onResize(pictureId, overlayId)) {
-					render(pictureId);
+					render();
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:clickArea', function (e, pictureId, event) {
+			deregister.push($scope.$on('nbPicture:clickArea', function (e, event) {
 				if (nbPictureService.onClickArea(pictureId, overlayId, event)) {
-					render(pictureId);
+					render();
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:focusArea', function (e, pictureId, event, blur) {
+			deregister.push($scope.$on('nbPicture:focusArea', function (e, event, blur) {
 				if (nbPictureService.onFocusArea(pictureId, overlayId, event, blur)) {
-					render(pictureId);
+					render();
 				}
 			}));
-			deregister.push($scope.$on('nbPicture:hoverArea', function (e, pictureId, event, blur) {
+			deregister.push($scope.$on('nbPicture:hoverArea', function (e, event, blur) {
 				if (nbPictureService.onHoverArea(pictureId, overlayId, event, blur)) {
-					render(pictureId);
+					render();
 				}
 			}));
 		};
@@ -79,9 +86,8 @@
 
 		/**
 		 *
-		 * @param {String} pictureId
 		 */
-		function render (pictureId) {
+		function render () {
 			var areas = nbPictureService.getMapOverlayAreas(pictureId, overlayId);
 
 			if (areas.length) {
