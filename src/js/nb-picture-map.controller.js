@@ -22,9 +22,7 @@
 			touch: false // {Boolean} Whether the device supports touch events.
 		};
 		var timeouts = [];
-		var $img, img;
-
-		$scope.complete = false; // {Boolean} Whether the image has loaded or failed to load.
+		var $img, img, complete = false;
 
 		/**
 		 *
@@ -70,7 +68,7 @@
 		 * @returns {Number}
 		 */
 		$scope.width = function () {
-			return $scope.complete && img ? img.scrollWidth : 0;
+			return complete && img ? img.scrollWidth : 0;
 		};
 
 		/**
@@ -79,7 +77,7 @@
 		 * @returns {Number}
 		 */
 		$scope.height = function () {
-			return $scope.complete && img ? img.scrollHeight : 0;
+			return complete && img ? img.scrollHeight : 0;
 		};
 
 		/**
@@ -151,7 +149,8 @@
 			}
 
 			// Reset state.
-			$scope.complete = false;
+			complete = false;
+			nbPictureService.setPictureComplete(pictureId, complete);
 
 			// Add image event handlers.
 			addImgEventListeners();
@@ -196,7 +195,8 @@
 		 */
 		function onImgError (event) {
 			if (img.src || img.srcset) {
-				$scope.complete = true;
+				complete = true;
+				nbPictureService.setPictureComplete(pictureId, complete);
 
 				removeImgEventListeners();
 
@@ -211,7 +211,8 @@
 		 */
 		function onImgLoad (event) {
 			if (isImgComplete(img)) {
-				$scope.complete = true;
+				complete = true;
+				nbPictureService.setPictureComplete(pictureId, complete);
 
 				removeImgEventListeners();
 

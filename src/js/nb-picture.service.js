@@ -56,7 +56,8 @@
 			var id = 'nb-picture-' + (++uniqid);
 
 			pictures[id] = {
-				$id: id
+				$id: id,
+				$complete: false // {Boolean} Whether the image load has ended (can be load success or fail).
 			};
 
 			return id;
@@ -124,6 +125,32 @@
 				alt: args.alt,
 				usemap: map && !map.resize && map.name ? '#' + map.name : ''
 			};
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @returns {Boolean}
+		 */
+		this.getPictureComplete = function (pictureId) {
+			var picture = pictures[pictureId];
+
+			if (picture) {
+				return picture.$complete;
+			}
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {Boolean} complete Whether the image load has ended (can be load success or fail).
+		 */
+		this.setPictureComplete = function (pictureId, complete) {
+			var picture = pictures[pictureId];
+
+			if (picture) {
+				picture.$complete = complete;
+			}
 		};
 
 		/**
