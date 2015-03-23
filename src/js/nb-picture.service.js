@@ -276,12 +276,28 @@
 					if (index > -1) {
 						dirty = true;
 						map.areas[index] = area;
+
+						// Update map overlays that have the given area.
+						_.forEach(map.overlays, function (overlay, overlayId) {
+							var index = _.findIndex(overlay.$$areas, {$$id: area.$$id});
+
+							if (index > -1) {
+								self.setMapOverlayArea(pictureId, overlayId, _.cloneDeep(area));
+							}
+						});
 					}
 				}
 				// Create a new map area.
 				else {
 					var newArea = buildMapArea(area);
 					map.areas.push(newArea);
+
+					// Add the new area to overlays that are always on.
+					_.forEach(map.overlays, function (overlay, overlayId) {
+						if (overlay.alwaysOn) {
+							self.setMapOverlayArea(pictureId, overlayId, newArea);
+						}
+					});
 
 					return newArea;
 				}
@@ -373,6 +389,21 @@
 			}
 
 			return dirty;
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @param {String} areaId
+		 * @returns {Object|undefined}
+		 */
+		this.getMapOverlayArea = function (pictureId, overlayId, areaId) {
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay) {
+				return _.find(overlay.$$areas, {$$id: areaId});
+			}
 		};
 
 		/**
