@@ -11,19 +11,17 @@
 
 	angular
 		.module('nb.picture')
-		.factory('nbPictureUtils', nbPictureUtils);
+		.service('nbPictureUtilService', nbPictureUtilService);
 
-	nbPictureUtils.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
-	function nbPictureUtils (PICTURE_POSITION, PICTURE_SHAPE, _) {
-		var utils = {};
-
+	nbPictureUtilService.$inject = ['PICTURE_POSITION', 'PICTURE_SHAPE', '_'];
+	function nbPictureUtilService (PICTURE_POSITION, PICTURE_SHAPE, _) {
 		/**
 		 *
 		 * @param {Number} x Value between 0 and 1.
 		 * @param {Number} y Value between 0 and 1.
 		 * @returns {String}
 		 */
-		utils.getPosition = function (x, y) {
+		this.getPosition = function (x, y) {
 			// Left
 			if (x < 0.5) {
 				// Top
@@ -56,7 +54,7 @@
 		 * @param {Array} point
 		 * @returns {Boolean}
 		 */
-		utils.contains = function (shape, coords, point) {
+		this.contains = function (shape, coords, point) {
 			var x = point[0];
 			var y = point[1];
 
@@ -69,7 +67,7 @@
 				return distanceSquared <= radius * radius;
 			}
 			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
-				var bounds = utils.getBounds(shape, coords);
+				var bounds = this.getBounds(shape, coords);
 
 				return x >= bounds[0] && x <= bounds[2] && y >= bounds[1] && y <= bounds[3];
 			}
@@ -84,8 +82,8 @@
 		 * @param {Array} coords
 		 * @returns {Object}
 		 */
-		utils.getSize = function (shape, coords) {
-			var bounds = utils.getBounds(shape, coords);
+		this.getSize = function (shape, coords) {
+			var bounds = this.getBounds(shape, coords);
 
 			return {
 				width: bounds[2] - bounds[0],
@@ -100,7 +98,7 @@
 		 * @param {Array} coords
 		 * @returns {Array}
 		 */
-		utils.getBounds = function (shape, coords) {
+		this.getBounds = function (shape, coords) {
 			var x1 = 0, y1 = 0, x2 = 0, y2 = 0;
 
 			if (shape === PICTURE_SHAPE.CIRCLE) {
@@ -138,7 +136,7 @@
 		 * @param {Boolean} round Whether to round the returned values.
 		 * @returns {Array}
 		 */
-		utils.getCenter = function (shape, coords, round) {
+		this.getCenter = function (shape, coords, round) {
 			var x = 0, y = 0;
 
 			if (shape === PICTURE_SHAPE.CIRCLE) {
@@ -146,7 +144,7 @@
 				y = coords[1];
 			}
 			else if (shape === PICTURE_SHAPE.POLYGON || shape === PICTURE_SHAPE.RECTANGLE) {
-				var bounds = utils.getBounds(shape, coords);
+				var bounds = this.getBounds(shape, coords);
 				x = (bounds[0] + bounds[2]) / 2;
 				y = (bounds[1] + bounds[3]) / 2;
 			}
@@ -168,7 +166,7 @@
 		 * @param {Boolean} round Whether to round the returned values.
 		 * @returns {Array}
 		 */
-		utils.relToAbsCoords = function (shape, coords, width, height, round) {
+		this.relToAbsCoords = function (shape, coords, width, height, round) {
 			var i, val;
 			var len = coords.length;
 			var newCoords = new Array(len);
@@ -212,7 +210,5 @@
 
 			return newCoords;
 		};
-
-		return utils;
 	}
 })(window, window.angular);
