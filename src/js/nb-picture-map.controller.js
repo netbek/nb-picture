@@ -25,7 +25,6 @@
 		var $img, img;
 
 		$scope.complete = false; // {Boolean} Whether the image has loaded or failed to load.
-//		$scope.map = nbPictureService.getMap(); // {Object}
 
 		/**
 		 *
