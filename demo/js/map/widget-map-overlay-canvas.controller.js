@@ -36,7 +36,7 @@
 			canvas = $element[0];
 			ctx = canvas.getContext('2d');
 
-			deregister.push($scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+			deregister.push($scope.$watch('$parent.$parent.picture.$$id', function (newValue, oldValue) {
 				if (newValue) {
 					pictureId = newValue;
 				}
@@ -51,12 +51,12 @@
 			};
 			var completeWatch = angular.noop;
 
-			// Create a one-time watcher for `picture.$complete`. This is needed
+			// Create a one-time watcher for `picture.$$complete`. This is needed
 			// because the directive might fire its controller's `init()` after
 			// the image has been loaded. If this happened, then the controller
 			// would not see the `nbPicture:baseLoad` event.
 			(function () {
-				completeWatch = $scope.$watch('$parent.$parent.picture.$complete', function (newValue, oldValue) {
+				completeWatch = $scope.$watch('$parent.$parent.picture.$$complete', function (newValue, oldValue) {
 					if (newValue) {
 						onBaseLoad();
 					}
@@ -154,7 +154,7 @@
 			// Draw areas.
 			_.forEach(areas, function (area) {
 				var shape = area.shape;
-				var coords = area.$coords;
+				var coords = area.$$coords;
 
 				if (shape === PICTURE_SHAPE.CIRCLE) {
 					ctx.beginPath();

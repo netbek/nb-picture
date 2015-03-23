@@ -21,7 +21,7 @@
 		var self = this;
 		var flags = {};
 		var defaultMap = {
-			$show: false, // {Boolean} Internal. Whether to show the map.
+			$$show: false, // {Boolean} Internal. Whether to show the map.
 			name: undefined, // {String} `name` attribute of map DOM element.
 			areas: [], // {Array} Array of map areas. See `defaultArea`.
 			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
@@ -29,8 +29,8 @@
 			overlays: {} // {Object} Overlay configs keyed by ID.
 		};
 		var defaultMapArea = {
-			$id: undefined, // {String} Internal. Unique ID.
-			$coords: [], // {Array} Internal. Array of absolute coordinates.
+			$$id: undefined, // {String} Internal. Unique ID.
+			$$coords: [], // {Array} Internal. Array of absolute coordinates.
 			shape: undefined, // {String} circle, rect, poly
 			coords: [], // {Array} Array of relative (percentage) or absolute coordinates.
 			href: '#', // {String}
@@ -39,7 +39,7 @@
 			data: undefined // {Object} Custom data object.
 		};
 		var defaultMapOverlay = {
-			$areas: [], // {Array} Internal. Highlighted map areas.
+			$$areas: [], // {Array} Internal. Highlighted map areas.
 			alwaysOn: false, // {Boolean} Whether to always show the highlighted map areas.
 			click: false, // {Boolean} Whether to show or hide highlights on click.
 			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
@@ -56,8 +56,8 @@
 			var id = 'nb-picture-' + (++uniqid);
 
 			pictures[id] = {
-				$id: id,
-				$complete: false // {Boolean} Whether the image load has ended (can be load success or fail).
+				$$id: id,
+				$$complete: false // {Boolean} Whether the image load has ended (can be load success or fail).
 			};
 
 			return id;
@@ -136,7 +136,7 @@
 			var picture = pictures[pictureId];
 
 			if (picture) {
-				return picture.$complete;
+				return picture.$$complete;
 			}
 		};
 
@@ -149,7 +149,7 @@
 			var picture = pictures[pictureId];
 
 			if (picture) {
-				picture.$complete = complete;
+				picture.$$complete = complete;
 			}
 		};
 
@@ -202,7 +202,7 @@
 
 					// Only add overlays that have events.
 					if (overlay.alwaysOn || overlay.click || overlay.focus || overlay.hover) {
-						overlay.$id = index;
+						overlay.$$id = index;
 						overlays[index] = overlay;
 					}
 				});
@@ -227,7 +227,7 @@
 			}
 
 			_.forEach(map.areas, function (area, index) {
-				map.areas[index].$coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
+				map.areas[index].$$coords = nbPictureUtilService.relToAbsCoords(area.shape, area.coords, width, height, round);
 			});
 		};
 
@@ -254,7 +254,7 @@
 			var map = self.getMap(pictureId);
 
 			if (map) {
-				return _.find(map.areas, {$id: areaId});
+				return _.find(map.areas, {$$id: areaId});
 			}
 		};
 
@@ -270,8 +270,8 @@
 
 			if (map) {
 				// Update an existing map area.
-				if (area.$id) {
-					var index = _.findIndex(map.areas, {$id: area.$id});
+				if (area.$$id) {
+					var index = _.findIndex(map.areas, {$$id: area.$$id});
 
 					if (index > -1) {
 						dirty = true;
@@ -301,7 +301,7 @@
 			var map = self.getMap(pictureId);
 
 			if (map) {
-				var index = _.findIndex(map.areas, {$id: areaId});
+				var index = _.findIndex(map.areas, {$$id: areaId});
 
 				if (index > -1) {
 					dirty = true;
@@ -309,8 +309,8 @@
 				}
 
 				_.forEach(map.overlays, function (overlay, overlayId) {
-					var areas = map.overlays[overlayId].$areas;
-					var index = _.findIndex(areas, {$id: areaId});
+					var areas = map.overlays[overlayId].$$areas;
+					var index = _.findIndex(areas, {$$id: areaId});
 
 					if (index > -1) {
 						dirty = true;
@@ -346,7 +346,7 @@
 			var overlay = self.getMapOverlay(pictureId, overlayId);
 
 			if (overlay) {
-				return overlay.$areas;
+				return overlay.$$areas;
 			}
 		};
 
@@ -365,10 +365,10 @@
 				dirty = true;
 
 				if (areas && areas.length) {
-					overlay.$areas = areas;
+					overlay.$$areas = areas;
 				}
 				else {
-					overlay.$areas = [];
+					overlay.$$areas = [];
 				}
 			}
 
@@ -387,11 +387,11 @@
 			var overlay = self.getMapOverlay(pictureId, overlayId);
 
 			if (overlay) {
-				if (area.$id) {
+				if (area.$$id) {
 					dirty = true;
 
-					var areas = overlay.$areas;
-					var index = _.findIndex(areas, {$id: area.$id});
+					var areas = overlay.$$areas;
+					var index = _.findIndex(areas, {$$id: area.$$id});
 
 					if (index > -1) {
 						areas[index] = area;
@@ -479,7 +479,7 @@
 
 					// Copy recalculated highlight coordinates from map areas.
 					_.forEach(highs, function (high) {
-						var area = _.find(areas, {$id: high.$id});
+						var area = _.find(areas, {$$id: high.$$id});
 						if (area) {
 							newHighs.push(_.cloneDeep(area));
 						}
@@ -512,7 +512,7 @@
 
 				// If only one highlight may be visible at the same time.
 				if (overlay.single) {
-					index = _.findIndex(highs, {$id: areaId});
+					index = _.findIndex(highs, {$$id: areaId});
 
 					// If the highlight is currently visible, then hide it (and others).
 					if (index > -1) {
@@ -647,8 +647,8 @@
 		 */
 		function buildMapArea (area) {
 			return _.extend({}, defaultMapArea, area, {
-				$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
-				$coords: area.$coords || area.coords
+				$$id: 'nb-picture-map-area-' + (++uniqid), // Unique ID for the map area.
+				$$coords: area.$$coords || area.coords
 			});
 		}
 
@@ -658,7 +658,7 @@
 		 * @param {Object} overlay
 		 * @param {Array} areas
 		 * @param {Array} highs
-		 * @param {Array} ids Array of area `$id` values. If none given, then all highlights are toggled.
+		 * @param {Array} ids Array of area `$$id` values. If none given, then all highlights are toggled.
 		 * @returns {Object}
 		 */
 		function toggleOverlayArea (overlay, areas, highs, ids) {
@@ -669,11 +669,11 @@
 				newValue = [];
 
 				_.forEach(ids, function (id) {
-					var index = _.findIndex(highs, {$id: id});
+					var index = _.findIndex(highs, {$$id: id});
 
 					// If the highlight is not currently visible, then show it.
 					if (index < 0) {
-						var area = _.find(areas, {$id: id});
+						var area = _.find(areas, {$$id: id});
 						if (area) {
 							newValue.push(_.cloneDeep(area));
 						}
@@ -694,7 +694,7 @@
 		 * @param {Object} overlay
 		 * @param {Array} areas
 		 * @param {Array} highs
-		 * @param {Array} ids Array of area `$id` values.
+		 * @param {Array} ids Array of area `$$id` values.
 		 * @returns {Object}
 		 */
 		function showOverlayArea (overlay, areas, highs, ids) {
@@ -705,7 +705,7 @@
 				newValue = [];
 
 				_.forEach(ids, function (id) {
-					var area = _.find(areas, {$id: id});
+					var area = _.find(areas, {$$id: id});
 					if (area) {
 						newValue.push(_.cloneDeep(area));
 					}
@@ -728,7 +728,7 @@
 		 * @returns {Object}
 		 */
 		function showAllOverlayAreas (overlay, areas, highs) {
-			return showOverlayArea(overlay, areas, highs, _.pluck(areas, '$id'));
+			return showOverlayArea(overlay, areas, highs, _.pluck(areas, '$$id'));
 		}
 
 		/**
@@ -737,7 +737,7 @@
 		 * @param {Object} overlay
 		 * @param {Array} areas
 		 * @param {Array} highs
-		 * @param {Array} ids Array of area `$id` values.
+		 * @param {Array} ids Array of area `$$id` values.
 		 * @returns {Object}
 		 */
 		function hideOverlayArea (overlay, areas, highs, ids) {
@@ -749,7 +749,7 @@
 
 				_.forEach(highs, function (old) {
 					// If the highlight should not be hidden, then save it.
-					if (_.indexOf(ids, old.$id) < 0) {
+					if (_.indexOf(ids, old.$$id) < 0) {
 						newValue.push(old);
 					}
 				});
@@ -771,7 +771,7 @@
 		 * @returns {Object}
 		 */
 		function hideAllOverlayAreas (overlay, areas, highs) {
-			return hideOverlayArea(overlay, areas, highs, _.pluck(highs, '$id'));
+			return hideOverlayArea(overlay, areas, highs, _.pluck(highs, '$$id'));
 		}
 	}
 })(window, window.angular);

@@ -1,10 +1,10 @@
 <span class="picture picture-map">
 	<map ng-if="map.areas"
 		 ng-attr-name="{{map.name}}">
-		<area ng-repeat="area in map.areas track by area.$id"
-			  ng-attr-id="{{area.$id}}"
+		<area ng-repeat="area in map.areas track by area.$$id"
+			  ng-attr-id="{{area.$$id}}"
 			  ng-attr-shape="{{area.shape}}"
-			  ng-attr-coords="{{area.$coords| join:','}}"
+			  ng-attr-coords="{{area.$$coords| join:','}}"
 			  ng-href="{{area.href}}"
 			  ng-attr-alt="{{area.alt}}"
 			  ng-attr-title="{{area.title}}"

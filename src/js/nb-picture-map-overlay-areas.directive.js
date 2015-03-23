@@ -21,7 +21,7 @@
 			scope: true,
 			templateUrl: 'templates/nb-picture-map-overlay-areas.html',
 			link: function (scope, element, attrs) {
-				var watch = scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+				var watch = scope.$watch('$parent.$parent.picture.$$id', function (newValue, oldValue) {
 					var model = {
 						alt: '',
 						usemap: ''

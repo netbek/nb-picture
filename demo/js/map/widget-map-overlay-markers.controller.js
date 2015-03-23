@@ -35,7 +35,7 @@
 
 			flags.init = true;
 
-			deregister.push($scope.$watch('$parent.$parent.picture.$id', function (newValue, oldValue) {
+			deregister.push($scope.$watch('$parent.$parent.picture.$$id', function (newValue, oldValue) {
 				if (newValue) {
 					pictureId = newValue;
 				}
@@ -52,12 +52,12 @@
 			};
 			var completeWatch = angular.noop;
 
-			// Create a one-time watcher for `picture.$complete`. This is needed
+			// Create a one-time watcher for `picture.$$complete`. This is needed
 			// because the directive might fire its controller's `init()` after
 			// the image has been loaded. If this happened, then the controller
 			// would not see the `nbPicture:baseLoad` event.
 			(function () {
-				completeWatch = $scope.$watch('$parent.$parent.picture.$complete', function (newValue, oldValue) {
+				completeWatch = $scope.$watch('$parent.$parent.picture.$$complete', function (newValue, oldValue) {
 					if (newValue) {
 						onBaseLoad();
 					}
@@ -119,7 +119,7 @@
 
 			if (areas.length) {
 				_.forEach(areas, function (area, index) {
-					var center = nbPictureUtilService.getCenter(area.shape, area.$coords, true);
+					var center = nbPictureUtilService.getCenter(area.shape, area.$$coords, true);
 					areas[index].style = {
 						top: center[1] + 'px',
 						left: center[0] + 'px'
