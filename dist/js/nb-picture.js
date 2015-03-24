@@ -116,7 +116,6 @@
 		var self = this;
 		var flags = {};
 		var defaultMap = {
-			$$show: false, // {Boolean} Internal. Whether to show the map.
 			name: undefined, // {String} `name` attribute of map DOM element.
 			areas: [], // {Array} Array of map areas. See `defaultArea`.
 			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
@@ -135,6 +134,7 @@
 		};
 		var defaultMapOverlay = {
 			$$areas: [], // {Array} Internal. Highlighted map areas.
+			show: true, // {Boolean} Whether the overlay is visible (ngShow).
 			alwaysOn: false, // {Boolean} Whether to always show the highlighted map areas.
 			click: false, // {Boolean} Whether to show or hide highlights on click.
 			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
@@ -545,6 +545,42 @@
 						areas.push(area);
 					}
 				}
+			}
+
+			return dirty;
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Boolean} Whether the overlay state has been changed.
+		 */
+		this.showMapOverlay = function (pictureId, overlayId) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay && !overlay.show) {
+				dirty = true;
+				overlay.show = true;
+			}
+
+			return dirty;
+		};
+
+		/**
+		 *
+		 * @param {String} pictureId
+		 * @param {String} overlayId
+		 * @returns {Boolean} Whether the overlay state has been changed.
+		 */
+		this.hideMapOverlay = function (pictureId, overlayId) {
+			var dirty = false;
+			var overlay = self.getMapOverlay(pictureId, overlayId);
+
+			if (overlay && overlay.show) {
+				dirty = true;
+				overlay.show = false;
 			}
 
 			return dirty;
