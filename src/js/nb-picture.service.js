@@ -21,7 +21,6 @@
 		var self = this;
 		var flags = {};
 		var defaultMap = {
-			$$show: false, // {Boolean} Internal. Whether to show the map.
 			name: undefined, // {String} `name` attribute of map DOM element.
 			areas: [], // {Array} Array of map areas. See `defaultArea`.
 			resize: false, // {Boolean} Whether to resize the map areas according to the image size.
