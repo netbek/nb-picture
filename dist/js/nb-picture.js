@@ -1385,7 +1385,7 @@
 			init: false, // {Boolean} Whether init() has been fired.
 			touch: false // {Boolean} Whether the device supports touch events.
 		};
-		var timeouts = [];
+		var timeouts = [], deregister = [];
 		var $img, img, complete = false;
 
 		/**
@@ -1473,6 +1473,10 @@
 
 			$img = $element.find('img');
 			img = $img[0];
+
+			deregister.push($scope.$on('nbPicture:mapAreasChanged', function (e) {
+				$scope.$broadcast('nbPicture:render');
+			}));
 		};
 
 		/**
@@ -1481,6 +1485,10 @@
 		this.destroy = function () {
 			_.forEach(timeouts, function (fn) {
 				$timeout.cancel(fn);
+			});
+
+			_.forEach(deregister, function (fn) {
+				fn();
 			});
 
 			removeWindowEventListeners();
