@@ -44,7 +44,8 @@
 			click: false, // {Boolean} Whether to show or hide highlights on click.
 			focus: false, // {Boolean} Whether to show or hide highlights on keyboard focus or blur.
 			hover: false, // {Boolean} Whether to show or hide highlights on mouse enter or leave.
-			single: false // {Boolean} Whether to highlight only one map area at the same time.
+			single: false, // {Boolean} Whether to highlight only one map area at the same time.
+			debounceResize: 0 // {Number}
 		};
 		var pictures = {};
 

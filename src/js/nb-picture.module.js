@@ -11,6 +11,7 @@
 
 	angular
 		.module('nb.picture', [
+			'debounce',
 			'nb.i18n',
 			'nb.lodash',
 			'nb.picture.templates'

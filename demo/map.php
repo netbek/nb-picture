@@ -13,6 +13,7 @@
 		<script src="../bower_components/lodash/lodash.js"></script>
 		<script src="../bower_components/picturefill/dist/picturefill.js"></script>
 		<script src="../bower_components/ng-stats/dist/ng-stats.js"></script>
+		<script src="../bower_components/ng-debounce/angular-debounce.js"></script>
 		<script src="../bower_components/nb-i18n/dist/js/nb-i18n.js"></script>
 		<script src="../bower_components/nb-lodash/dist/js/nb-lodash.js"></script>
 		<script src="../bower_components/nb-icon/dist/js/nb-icon.js"></script>
