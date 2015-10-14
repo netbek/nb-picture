@@ -26,7 +26,7 @@
     "ng-debounce": "~0.1.5",
     "nb-i18n": "https://github.com/netbek/nb-i18n.git#master",
     "nb-lodash": "https://github.com/netbek/nb-lodash.git#master",
-    "picturefill": "2.2.0"
+    "picturefill": "~2.3.1"
   },
   "devDependencies": {
     "ng-stats": "~2.0.4",
