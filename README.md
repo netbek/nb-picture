@@ -4,6 +4,37 @@ AngularJS directive for responsive images and image maps
 
 ## Usage
 
+### Configuration
+
+In testing, IE9 with Picturefill 3 only loads the default image if the media query includes the media type, e.g. `screen and (min-width: 640px)`. Works if omitting the media type, e.g. `(min-width: 640px)`. Picturefill 2.3.1 works with and without the media type.
+
+Example:
+```
+angular
+	.module('app', [])
+	.config(['nbPictureConfigProvider',
+		function (nbPictureConfigProvider) {
+			nbPictureConfigProvider.set({
+				mediaqueries: {
+					small: '(min-width: 0px)',
+					medium: '(min-width: 640px)',
+					large: '(min-width: 992px)',
+					xlarge: '(min-width: 1440px)',
+					xxlarge: '(min-width: 1920px)',
+					landscape: '(orientation: landscape)',
+					portrait: '(orientation: portrait)',
+					// http://css-tricks.com/snippets/css/retina-display-media-query
+					retina: '(-webkit-min-device-pixel-ratio: 2), ' +
+						'(min--moz-device-pixel-ratio: 2), ' +
+						'(-o-min-device-pixel-ratio: 2/1), ' +
+						'(min-device-pixel-ratio: 2), ' +
+						'(min-resolution: 192dpi), ' +
+						'(min-resolution: 2dppx)'
+				}
+			});
+		}]);
+```
+
 ### Images
 
 One-time bindings. Note that `sources` should be defined from small to large, unlike in [Picturefill](https://github.com/scottjehl/picturefill) v2.
@@ -30,11 +61,6 @@ One-time bindings with default areas overlay.
 ### Custom overlays for image maps
 
 See `/demo/map.php` for an example with highlighted areas and SVG markers.
-
-
-## To do
-
-* Demo image map: Throttle canvas redraw on window resize.
 
 
 ## Development
