@@ -18,18 +18,18 @@
     "test",
     "tests",
     "vendor",
-	"demo",
-	"src"
+    "demo",
+    "src"
   ],
   "dependencies": {
     "angularjs": "~1.3.13",
     "ng-debounce": "~0.1.5",
     "nb-i18n": "https://github.com/netbek/nb-i18n.git#master",
     "nb-lodash": "https://github.com/netbek/nb-lodash.git#master",
-    "picturefill": "~2.3.1"
+    "picturefill": "~3.0.1"
   },
   "devDependencies": {
     "ng-stats": "~2.0.4",
-	"nb-icon": "https://github.com/netbek/nb-icon.git#master"
+    "nb-icon": "https://github.com/netbek/nb-icon.git#master"
   }
 }
