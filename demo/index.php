@@ -8,6 +8,11 @@
 		<link rel="stylesheet" href="../src/css/nb-picture.css" />
 		<link rel="stylesheet" href="../demo/css/app.css" />
 
+		<script>
+			// Picture element HTML5 shiv
+			document.createElement('picture');
+		</script>
+
 		<script src="../bower_components/angularjs/angular.js"></script>
 		<script src="../bower_components/lodash/lodash.js"></script>
 		<script src="../bower_components/picturefill/dist/picturefill.js"></script>
