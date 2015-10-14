@@ -37,6 +37,24 @@ See `/demo/map.php` for an example with highlighted areas and SVG markers.
 * Demo image map: Throttle canvas redraw on window resize.
 
 
+## Development
+
+### Usage
+
+Watch for changes to source files and build production files:
+
+```
+guard
+```
+
+### Install
+
+```
+gem install bundler
+bundle install
+```
+
+
 ## Credits
 
 * Image of [Diphyllodes chrysoptera](http://commons.wikimedia.org/wiki/File:!Diphyllodes_chrysoptera!.jpg) by [Daniel Giraud Elliot](https://en.wikipedia.org/wiki/Daniel_Giraud_Elliot) (public domain)
